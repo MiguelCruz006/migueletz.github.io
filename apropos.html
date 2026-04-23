@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À Propos | Miguel Etienne</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --cream: #faf8f3;
+            --paper: #f3efe6;
+            --ink: #1a1714;
+            --ink2: #3d3830;
+            --muted: #8c8277;
+            --gold: #b8860b;
+            --gold2: #d4a017;
+            --sky: #2563a8;
+            --border: #e0d9ce;
+            --card: #ffffff;
+            --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'DM Sans', sans-serif;
+            --mono: 'DM Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--cream);
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 15px;
+            line-height: 1.75;
+        }
+
+        /* NAV */
+        header {
+            position: sticky;
+            top: 0; z-index: 200;
+            background: var(--ink);
+            height: 58px;
+            display: flex;
+            align-items: center;
+            padding: 0 2.5rem;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        nav {
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: var(--serif);
+            font-weight: 900;
+            font-size: 18px;
+            color: white;
+            text-decoration: none;
+        }
+        .logo span { color: var(--gold2); }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #7a7060;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #ccc; }
+        .nav-links a.active { color: var(--gold2); }
+        .nav-cta { background: var(--gold) !important; color: white !important; padding: 6px 16px !important; border-radius: 4px; }
+
+        /* HERO */
+        .hero {
+            background: var(--ink);
+            padding: 5rem 2.5rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: 'MIGUEL';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: var(--serif);
+            font-weight: 900;
+            font-size: 11rem;
+            color: rgba(255,255,255,0.025);
+            line-height: 1;
+            pointer-events: none;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 3rem;
+            align-items: end;
+        }
+
+        .hero-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--gold2);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+        .hero-eyebrow::before { content: ''; width: 40px; height: 1px; background: var(--gold2); }
+
+        h1 {
+            font-family: var(--serif);
+            font-weight: 900;
+            font-size: clamp(3rem, 6vw, 5rem);
+            color: white;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+        }
+        h1 em { font-style: italic; color: var(--gold2); }
+
+        .hero-desc {
+            font-size: 17px;
+            color: #7a7060;
+            font-weight: 300;
+            max-width: 520px;
+            line-height: 1.8;
+        }
+
+        .hero-photo-wrap {
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .hero-photo {
+            width: 160px; height: 160px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 3px solid var(--gold);
+            display: block;
+        }
+
+        .hero-photo-placeholder {
+            width: 160px; height: 160px;
+            border-radius: 8px;
+            background: #1a1714;
+            border: 3px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--serif);
+            font-weight: 900;
+            font-size: 4rem;
+            color: var(--gold2);
+        }
+
+        .hero-badge-photo {
+            position: absolute;
+            bottom: -10px; right: -10px;
+            background: var(--gold);
+            color: white;
+            font-family: var(--mono);
+            font-size: 8px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 3px;
+        }
+
+        /* CONTENT */
+        .content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 2.5rem 6rem;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 2.5rem;
+        }
+        .section-label-line { flex: 1; height: 1px; background: var(--border); }
+        .section-label-text {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--muted);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* MAIN GRID */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 3.5rem;
+            align-items: start;
+        }
+
+        /* ASIDE */
+        .aside-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 1.25rem;
+        }
+
+        .aside-header {
+            background: var(--paper);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .aside-body { padding: 1.25rem 1.5rem; }
+
+        /* INFO ROWS */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--paper);
+            font-size: 13px;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--muted); font-size: 12px; }
+        .info-val { color: var(--ink); font-weight: 500; text-align: right; font-size: 12px; }
+
+        /* LANG BARS */
+        .lang-row { margin-bottom: 14px; }
+        .lang-row:last-child { margin-bottom: 0; }
+        .lang-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        .lang-name-txt { color: var(--ink2); }
+        .lang-pct { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+        .lang-bar {
+            height: 3px;
+            background: var(--paper);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .lang-fill {
+            height: 3px;
+            border-radius: 2px;
+            background: var(--gold);
+        }
+
+        /* VOYAGE */
+        .voyage-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--paper);
+        }
+        .voyage-item:last-child { border-bottom: none; }
+        .voyage-icon {
+            width: 32px; height: 32px;
+            background: var(--ink);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold2);
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .voyage-title { font-size: 13px; font-weight: 500; color: var(--ink); }
+        .voyage-desc { font-size: 11px; color: var(--muted); }
+
+        /* INTERESTS */
+        .interest-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .interest-item {
+            background: var(--paper);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px 10px;
+            font-size: 11px;
+            color: var(--ink2);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .interest-item i { color: var(--gold); font-size: 10px; }
+
+        /* MAIN CONTENT */
+        .prose-block {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2rem 2.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .prose-block.accent-sky { border-left: 3px solid var(--sky); }
+        .prose-block.accent-gold { border-left: 3px solid var(--gold); }
+
+        .block-title {
+            font-family: var(--serif);
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--ink);
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .prose-text {
+            font-size: 15px;
+            color: var(--ink2);
+            line-height: 1.8;
+        }
+
+        .prose-text strong { color: var(--ink); font-weight: 600; }
+
+        .prose-text p + p { margin-top: 1rem; }
+
+        /* SKILLS GRID */
+        .skills-section {
+            margin-top: 1.5rem;
+        }
+
+        .skills-title {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .skill-tag {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 3px;
+            background: var(--paper);
+            border: 1px solid var(--border);
+            color: var(--ink2);
+        }
+
+        .skill-tag.highlight {
+            background: var(--ink);
+            color: var(--gold2);
+            border-color: var(--ink);
+        }
+
+        /* OBJECTIF */
+        .objectif-block {
+            background: var(--ink);
+            border-radius: 6px;
+            padding: 2rem 2.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .objectif-block::before {
+            content: '"';
+            position: absolute;
+            top: -10px; left: 16px;
+            font-family: var(--serif);
+            font-size: 8rem;
+            color: rgba(212,160,23,0.08);
+            line-height: 1;
+        }
+
+        .objectif-title {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--gold2);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .objectif-text {
+            font-family: var(--serif);
+            font-size: 1.15rem;
+            color: #e8e4dc;
+            line-height: 1.75;
+            font-style: italic;
+        }
+
+        .objectif-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 1.25rem;
+        }
+
+        .obj-tag {
+            font-family: var(--mono);
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 3px;
+            background: rgba(212,160,23,0.12);
+            color: var(--gold2);
+            border: 1px solid rgba(212,160,23,0.2);
+        }
+
+        /* CTA */
+        .cta-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .cta-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--ink);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+        .cta-primary:hover { background: var(--gold); }
+
+        .cta-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--ink);
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .cta-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* FOOTER */
+        footer {
+            background: var(--ink);
+            color: #3d3830;
+            padding: 2rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 2px solid var(--gold);
+        }
+        .footer-txt { font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; }
+        .footer-logo { font-family: var(--serif); font-size: 20px; color: #3d3830; font-weight: 900; }
+        .footer-logo span { color: var(--gold2); }
+
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .hero-inner { grid-template-columns: 1fr; }
+            .hero-photo-wrap { display: none; }
+            .nav-links { display: none; }
+            h1 { font-size: 2.8rem; }
+            .hero::after { display: none; }
+            footer { flex-direction: column; gap: 1rem; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="index.html" class="logo">Miguel<span>.SIO</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="apropos.html" class="active">À propos</a></li>
+            <li><a href="projets.html">Projets</a></li>
+            <li><a href="parcours.html">Parcours</a></li>
+            <li><a href="cv.html" class="nav-cta">CV</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-inner">
+        <div>
+            <div class="hero-eyebrow">BTS SIO SISR — Profil technique</div>
+            <h1>À propos<br>de <em>moi</em></h1>
+            <p class="hero-desc">Étudiant en systèmes &amp; réseaux, passionné de cybersécurité, polyglotte et curieux. Un profil qui mêle rigueur technique et sens du service.</p>
+        </div>
+        <div class="hero-photo-wrap">
+            <div class="hero-photo-placeholder">ME</div>
+            <div class="hero-badge-photo">Miguel Etienne</div>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+
+    <div class="section-label">
+        <span class="section-label-text">Profil &amp; compétences</span>
+        <div class="section-label-line"></div>
+    </div>
+
+    <div class="main-grid">
+
+        <!-- ASIDE -->
+        <aside>
+
+            <div class="aside-card">
+                <div class="aside-header">Informations</div>
+                <div class="aside-body">
+                    <div class="info-row"><span class="info-label">Formation</span><span class="info-val">BTS SIO SISR</span></div>
+                    <div class="info-row"><span class="info-label">Établissement</span><span class="info-val">CNED</span></div>
+                    <div class="info-row"><span class="info-label">Année</span><span class="info-val">2e année</span></div>
+                    <div class="info-row"><span class="info-label">Localisation</span><span class="info-val">Châlette-sur-Loing</span></div>
+                    <div class="info-row"><span class="info-label">Diplôme précédent</span><span class="info-val">Bac STMG G&F</span></div>
+                </div>
+            </div>
+
+            <div class="aside-card">
+                <div class="aside-header">Langues</div>
+                <div class="aside-body">
+                    <div class="lang-row">
+                        <div class="lang-top"><span class="lang-name-txt">Français</span><span class="lang-pct">Natif</span></div>
+                        <div class="lang-bar"><div class="lang-fill" style="width:100%"></div></div>
+                    </div>
+                    <div class="lang-row">
+                        <div class="lang-top"><span class="lang-name-txt">Espagnol</span><span class="lang-pct">Courant</span></div>
+                        <div class="lang-bar"><div class="lang-fill" style="width:95%"></div></div>
+                    </div>
+                    <div class="lang-row">
+                        <div class="lang-top"><span class="lang-name-txt">Anglais</span><span class="lang-pct">B2</span></div>
+                        <div class="lang-bar"><div class="lang-fill" style="width:75%"></div></div>
+                    </div>
+                    <div class="lang-row">
+                        <div class="lang-top"><span class="lang-name-txt">Italien</span><span class="lang-pct">B2</span></div>
+                        <div class="lang-bar"><div class="lang-fill" style="width:70%;background:var(--sky)"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aside-card">
+                <div class="aside-header">Expériences à l'étranger</div>
+                <div class="aside-body">
+                    <div class="voyage-item">
+                        <div class="voyage-icon"><i class="fas fa-plane"></i></div>
+                        <div>
+                            <div class="voyage-title">Malte — 1 mois</div>
+                            <div class="voyage-desc">Immersion linguistique anglais</div>
+                        </div>
+                    </div>
+                    <div class="voyage-item">
+                        <div class="voyage-icon"><i class="fas fa-plane"></i></div>
+                        <div>
+                            <div class="voyage-title">Italie — 1 mois</div>
+                            <div class="voyage-desc">Immersion linguistique italien</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aside-card">
+                <div class="aside-header">Centres d'intérêt</div>
+                <div class="aside-body">
+                    <div class="interest-grid">
+                        <div class="interest-item"><i class="fas fa-shield-alt"></i> Technologies de l'information</div>
+                        <div class="interest-item"><i class="fas fa-star"></i> Les voyages</div>
+                        <div class="interest-item"><i class="fas fa-atom"></i> Football</div>
+                        <div class="interest-item"><i class="fas fa-book"></i> L'art (cinéma, musique, peinture, littérature)</div>
+                        <div class="interest-item"><i class="fas fa-horse"></i> Courses hippiques</div>
+                        <div class="interest-item"><i class="fas fa-globe-africa"></i> Cultures du monde</div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- MAIN -->
+        <div>
+
+            <div class="prose-block accent-sky">
+                <div class="block-title">Mon profil technique</div>
+                <div class="prose-text">
+                    <p>Passionné par les technologies de l'information, je prépare mon <strong>BTS SIO SISR</strong> (Solutions d'Infrastructure, Systèmes et Réseaux) en formation à distance via le CNED. Mon parcours allie curiosité intellectuelle et rigueur pratique.</p>
+                    <p>De la configuration d'équipements Cisco IOS à l'automatisation d'infrastructures Cloud via <strong>Azure et Terraform</strong>, j'explore aussi bien les réseaux physiques que les environnements virtualisés. La cybersécurité m'attire particulièrement — j'approfondis en autonomie les domaines SOC, analyse de logs Windows et protocoles d'authentification.</p>
+                </div>
+
+                <div class="skills-section">
+                    <div class="skills-title">Compétences techniques</div>
+                    <div class="skills-grid">
+                        <span class="skill-tag highlight">Azure / Terraform</span>
+                        <span class="skill-tag highlight">Cisco IOS</span>
+                        <span class="skill-tag highlight">Active Directory</span>
+                        <span class="skill-tag">Linux / Apache</span>
+                        <span class="skill-tag">PowerShell</span>
+                        <span class="skill-tag">VLAN / VTP / HSRP</span>
+                        <span class="skill-tag">Packet Tracer</span>
+                        <span class="skill-tag">DHCP / DNS</span>
+                        <span class="skill-tag">Cybersécurité SOC</span>
+                        <span class="skill-tag">RBAC / Entra ID</span>
+                        <span class="skill-tag">ARM / Bicep</span>
+                        <span class="skill-tag">Syslog / NTP</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="objectif-block">
+                <div class="objectif-title">Objectif professionnel</div>
+                <p class="objectif-text">À l'issue de mon BTS, mon ambition est d'intégrer une 3e année spécialisée en cybersécurité. Mon profil polyglotte et ma curiosité pour les systèmes sécurisés me poussent vers un rôle d'analyste SOC ou d'auditeur GRC.</p>
+                <div class="objectif-tags">
+                    <span class="obj-tag">SOC Analyst</span>
+                    <span class="obj-tag">Pentest</span>
+                    <span class="obj-tag">Azure Security</span>
+                    <span class="obj-tag">GRC / Audit</span>
+                    <span class="obj-tag">Networking</span>
+                </div>
+            </div>
+
+            <div class="prose-block accent-gold">
+                <div class="block-title">Un profil atypique</div>
+                <div class="prose-text">
+                    <p>Mon parcours combine deux univers en apparence éloignés : l'IT et l'hôtellerie de luxe. Cette double expérience m'a appris la rigueur du service client, la gestion sous pression et l'importance de la discrétion — des qualités directement transférables en entreprise IT, notamment dans des contextes sensibles comme la cybersécurité ou l'administration de systèmes critiques.</p>
+                    <p>Quadrilingue (français, espagnol, anglais, italien), mes immersions à <strong>Malte</strong> et en <strong>Italie</strong> m'ont ouvert à d'autres cultures techniques et professionnelles.</p>
+                </div>
+            </div>
+
+            <div class="cta-row">
+                <a href="projets.html" class="cta-primary"><i class="fas fa-folder"></i> Voir mes projets</a>
+                <a href="parcours.html" class="cta-secondary"><i class="fas fa-road"></i> Mon parcours complet</a>
+                <a href="cv.html" class="cta-secondary"><i class="fas fa-file-pdf"></i> Télécharger le CV</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <span class="footer-txt">Miguel Etienne &nbsp;·&nbsp; À propos &nbsp;·&nbsp; BTS SIO SISR &nbsp;·&nbsp; 2026</span>
+    <span class="footer-logo">Miguel<span>.SIO</span></span>
+</footer>
+
+</body>
+</html>

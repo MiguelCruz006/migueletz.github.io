@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier 4 — PARCINFO | Miguel Etienne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg:#fafaf8;--bg2:#f3f2ed;--bg3:#eae8e1;
+  --ink:#141210;--ink2:#2e2b26;--muted:#7a7670;
+  --orange:#e8500a;--orange2:#ff6b2b;--orangeL:rgba(232,80,10,0.08);--orangeB:rgba(232,80,10,0.2);
+  --blue:#1a4fa8;--blueL:rgba(26,79,168,0.08);--blueB:rgba(26,79,168,0.2);
+  --green:#0d7a4e;--greenL:rgba(13,122,78,0.08);
+  --amber:#b8860b;--amberL:rgba(184,134,11,0.08);
+  --red:#c0392b;--redL:rgba(192,57,43,0.08);
+  --border:#e0ddd5;--card:#ffffff;
+  --f:'Plus Jakarta Sans',sans-serif;--m:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.75;overflow-x:hidden}
+
+/* NAV */
+header{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--ink);height:54px;display:flex;align-items:center;padding:0 2rem;justify-content:space-between;border-bottom:3px solid var(--orange)}
+.nav-back{display:flex;align-items:center;gap:8px;color:#bbb;text-decoration:none;font-family:var(--m);font-size:11px;letter-spacing:.08em;transition:color .2s,gap .2s}
+.nav-back:hover{color:var(--orange2);gap:12px}
+.nav-title{font-family:var(--m);font-size:9px;color:#555;letter-spacing:.25em;text-transform:uppercase}
+.nav-logo{font-family:var(--f);font-weight:800;font-size:15px;color:white;text-decoration:none;text-transform:uppercase;letter-spacing:.04em}
+.nav-logo span{color:var(--orange2)}
+
+/* MISSION NAV */
+.mnav{position:sticky;top:54px;z-index:190;background:white;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.mnav a{font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;padding:11px 16px;text-decoration:none;border-right:1px solid var(--border);white-space:nowrap;transition:color .2s,background .2s;display:flex;align-items:center;gap:6px}
+.mnav a:hover{color:var(--ink);background:var(--bg2)}
+.mnav a .mn{display:inline-flex;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;color:white;background:var(--muted)}
+.mnav a.a1 .mn{background:var(--orange)}
+.mnav a.a2 .mn{background:var(--blue)}
+.mnav a.a3 .mn{background:var(--green)}
+.mnav a.a4 .mn{background:var(--amber)}
+.mnav a.a5 .mn{background:var(--red)}
+
+/* HERO — papier imprimé */
+.hero{background:var(--ink);padding:90px 2rem 60px;position:relative;overflow:hidden}
+.hero::before{content:'PARCINFO';position:absolute;right:-40px;bottom:-30px;font-family:var(--f);font-weight:800;font-size:18vw;color:rgba(255,255,255,0.025);line-height:1;letter-spacing:-.04em;pointer-events:none;user-select:none}
+.hero-inner{max-width:960px;margin:0 auto;position:relative;display:grid;grid-template-columns:1fr auto;gap:3rem;align-items:end}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--orangeL);border:1px solid var(--orangeB);color:var(--orange2);font-family:var(--m);font-size:9px;letter-spacing:.18em;text-transform:uppercase;padding:5px 14px;border-radius:2px;margin-bottom:20px}
+.hero-tag::before{content:'';width:5px;height:5px;background:var(--orange2);border-radius:50%}
+h1{font-weight:800;font-size:clamp(2.5rem,6vw,5rem);line-height:1;letter-spacing:-.03em;color:white;margin-bottom:16px}
+h1 em{font-style:normal;color:var(--orange2)}
+.hero-sub{font-size:16px;color:#888;font-weight:300;max-width:520px;line-height:1.8;margin-bottom:0}
+.hero-stats{display:grid;grid-template-columns:1fr;gap:1px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;min-width:200px;align-self:center}
+.hs{background:rgba(255,255,255,0.03);padding:12px 16px;display:flex;flex-direction:column;gap:2px}
+.hs-val{font-family:var(--m);font-weight:500;font-size:14px;color:var(--orange2)}
+.hs-lbl{font-family:var(--m);font-size:9px;color:#555;letter-spacing:.15em;text-transform:uppercase}
+
+/* MAIN */
+main{max-width:960px;margin:0 auto;padding:0 2rem 6rem}
+
+/* SLABEL */
+.sl{display:flex;align-items:center;gap:14px;margin:3rem 0 1.5rem}
+.sl-line{flex:1;height:1px;background:var(--border)}
+.sl span{font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
+
+/* MISSION HEADER */
+.mhdr{display:flex;align-items:stretch;border-radius:4px;overflow:hidden;margin-bottom:1.5rem;border:1px solid var(--border)}
+.mhdr-num{padding:1.5rem 1.75rem;display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:120px}
+.mhdr-n{font-family:var(--m);font-size:9px;letter-spacing:.18em;text-transform:uppercase;opacity:.7;color:white}
+.mhdr-t{font-weight:800;font-size:1.1rem;color:white;line-height:1.2}
+.mhdr-body{padding:1.25rem 1.75rem;background:var(--card);flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;border-left:none}
+.mhdr-desc{font-size:13px;color:var(--muted);font-weight:300;line-height:1.7}
+.mhdr-chips{display:flex;flex-wrap:wrap;gap:5px}
+.mchip{font-family:var(--m);font-size:9px;padding:2px 9px;border-radius:2px;border:1px solid var(--border);color:var(--muted);background:var(--bg2)}
+
+.m1 .mhdr-num{background:var(--orange)}
+.m2 .mhdr-num{background:var(--blue)}
+.m3 .mhdr-num{background:var(--green)}
+.m4 .mhdr-num{background:var(--amber)}
+.m5 .mhdr-num{background:var(--red)}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.75rem;margin-bottom:1.25rem;position:relative}
+.card-l{border-left:3px solid var(--orange)}
+.card-l2{border-left:3px solid var(--blue)}
+.card-l3{border-left:3px solid var(--green)}
+.card-l4{border-left:3px solid var(--amber)}
+.card-l5{border-left:3px solid var(--red)}
+.ch{display:flex;align-items:center;gap:12px;margin-bottom:1.25rem}
+.cnum{width:34px;height:34px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-weight:700;font-size:14px;color:white;flex-shrink:0}
+.cn1{background:var(--orange)}.cn2{background:var(--blue)}.cn3{background:var(--green)}.cn4{background:var(--amber)}.cn5{background:var(--red)}
+.ct{font-weight:700;font-size:1rem;letter-spacing:-.01em;color:var(--ink)}
+.cs{font-family:var(--m);font-size:10px;color:var(--muted);margin-top:2px}
+p.d{color:var(--muted);font-size:13.5px;margin-bottom:1.25rem;font-weight:300;line-height:1.75}
+
+/* NOTE */
+.note{display:flex;gap:10px;padding:12px 16px;border-radius:4px;margin-bottom:1.25rem;font-size:13px;font-weight:400}
+.note i{flex-shrink:0;margin-top:2px}
+.ni{background:var(--orangeL);border:1px solid var(--orangeB);color:#7a3000}
+.nw{background:var(--amberL);border:1px solid rgba(184,134,11,0.2);color:#5c4000}
+.nb{background:var(--blueL);border:1px solid var(--blueB);color:#0d2a5c}
+.ng{background:var(--greenL);border:1px solid rgba(13,122,78,0.2);color:#053d27}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:1.25rem}
+.dt th{background:var(--bg2);color:var(--muted);font-family:var(--m);font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:2px solid var(--border)}
+.dt td{padding:9px 12px;border-bottom:1px solid var(--bg2);color:var(--ink2);font-size:12.5px}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:var(--bg)}
+.bz{display:inline-block;padding:2px 8px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:var(--m)}
+.b-or{background:var(--orangeL);color:var(--orange);border:1px solid var(--orangeB)}
+.b-bl{background:var(--blueL);color:var(--blue);border:1px solid var(--blueB)}
+.b-gr{background:var(--greenL);color:var(--green);border:1px solid rgba(13,122,78,0.2)}
+.b-am{background:var(--amberL);color:var(--amber);border:1px solid rgba(184,134,11,0.2)}
+
+/* TERMINAL */
+.term{background:#1a1815;border-radius:4px;margin-bottom:1.25rem;overflow:hidden;border:1px solid #2a2723}
+.tbar{background:#221f1b;padding:9px 16px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #2a2723}
+.dr{width:8px;height:8px;background:#f87171;border-radius:50%}
+.dy{width:8px;height:8px;background:#fbbf24;border-radius:50%}
+.dg{width:8px;height:8px;background:var(--orange2);border-radius:50%}
+.tlbl{margin-left:auto;font-family:var(--m);font-size:9px;color:#555;letter-spacing:.1em}
+.term pre{padding:18px 20px;font-family:var(--m);font-size:11.5px;line-height:1.9;color:#d4cfc8;overflow-x:auto;white-space:pre}
+.cc{color:#3a3530}.ck{color:#e8a070}.cv{color:#a8d4a0}.cp{color:#7098d4}.csh{color:#a0c8a8}
+
+/* ARCH DIAGRAM */
+.arch{display:flex;flex-direction:column;gap:0;margin-bottom:1.25rem;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.arch-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border)}
+.arch-row:last-child{border-bottom:none}
+.arch-label{background:var(--bg2);padding:12px 16px;min-width:140px;display:flex;align-items:center;font-family:var(--m);font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;border-right:1px solid var(--border);flex-shrink:0}
+.arch-nodes{display:flex;align-items:center;gap:10px;padding:12px 16px;flex:1;flex-wrap:wrap}
+.anode{display:flex;flex-direction:column;align-items:center;gap:4px}
+.anode-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:8px 14px;font-family:var(--m);font-size:10px;color:var(--ink);text-align:center;white-space:nowrap}
+.anode-box.active{border-color:var(--orange);color:var(--orange);background:var(--orangeL)}
+.anode-box.blue{border-color:var(--blue);color:var(--blue);background:var(--blueL)}
+.anode-box.green{border-color:var(--green);color:var(--green);background:var(--greenL)}
+.anode-lbl{font-size:9px;color:var(--muted);font-family:var(--m)}
+.arch-arrow{color:var(--muted);font-size:14px;margin:0 2px}
+.arch-note{font-size:11px;color:var(--muted);font-style:italic;padding:0 16px 8px;font-family:var(--m)}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:12px 14px}
+.step-n{width:24px;height:24px;border-radius:50%;background:var(--orange);color:white;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.step-body{flex:1}
+.step-title{font-weight:600;font-size:13px;color:var(--ink);margin-bottom:2px}
+.step-desc{font-size:12.5px;color:var(--muted)}
+.step.s2 .step-n{background:var(--blue)}
+.step.s3 .step-n{background:var(--green)}
+.step.s4 .step-n{background:var(--amber)}
+.step.s5 .step-n{background:var(--red)}
+
+/* TEST ROWS */
+.tr2{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--bg);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;font-family:var(--m);font-size:11px}
+.trs{color:var(--orange);min-width:120px}.tra{color:var(--muted)}.trd{color:var(--blue);flex:1}
+.tres{margin-left:auto;padding:2px 10px;border-radius:2px;font-size:10px;font-weight:700;flex-shrink:0}
+.twait{background:var(--amberL);color:var(--amber);border:1px solid rgba(184,134,11,0.2)}
+.tok{background:var(--greenL);color:var(--green);border:1px solid rgba(13,122,78,0.2)}
+
+/* COMP */
+.compg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:1.25rem}
+.compc{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px}
+.compb{font-family:var(--m);font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:5px}
+.cb1{color:var(--orange)}.cb2{color:var(--blue)}.cb3{color:var(--green)}
+.compt{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.compd{font-size:11px;color:var(--muted)}
+
+/* PHOTO ZONE */
+.pzone{border:1.5px dashed var(--border);border-radius:4px;background:var(--bg2);position:relative;overflow:hidden;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.pzone:hover{border-color:var(--orange);background:var(--orangeL)}
+.pzone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
+.pzone-inner{padding:26px 20px;text-align:center;pointer-events:none}
+.pzone-img{width:100%;max-height:440px;object-fit:contain;border-radius:4px;display:none;padding:8px}
+.pzone-saved{display:none;position:absolute;top:8px;right:8px;background:var(--green);color:white;font-family:var(--m);font-size:9px;padding:3px 8px;border-radius:2px;letter-spacing:.1em;z-index:3}
+.phi{font-size:1.6rem;color:var(--border);margin-bottom:10px;display:block}
+.php{font-family:var(--m);font-size:10px;color:var(--muted);letter-spacing:.1em}
+.phs{display:block;font-size:10px;color:var(--bg3);margin-top:3px}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+
+/* CTA */
+.cta{background:var(--ink);border-radius:4px;padding:2.5rem;text-align:center;margin-top:2rem;position:relative;overflow:hidden;border-top:3px solid var(--orange)}
+.cta::before{content:'';position:absolute;top:-80px;right:-80px;width:250px;height:250px;background:radial-gradient(circle,rgba(232,80,10,0.12),transparent 70%)}
+.cta h3{font-weight:800;font-size:1.4rem;color:white;letter-spacing:-.01em;margin-bottom:6px}
+.cta p{color:#666;font-size:14px;margin-bottom:1.5rem}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:white;text-decoration:none;padding:12px 24px;border-radius:4px;font-weight:700;font-size:13px;letter-spacing:.03em;transition:transform .2s,background .2s}
+.cta-btn:hover{transform:translateY(-2px);background:var(--orange2)}
+
+footer{text-align:center;padding:2.5rem 1rem;font-family:var(--m);font-size:9px;color:var(--bg3);letter-spacing:.28em;text-transform:uppercase;border-top:1px solid var(--border)}
+
+@media(max-width:640px){
+  .pg{grid-template-columns:1fr}.dt{font-size:11px}.dt td,.dt th{padding:7px}
+  .hero-inner{grid-template-columns:1fr}.hero-stats{display:none}
+  .mhdr{flex-direction:column}.mhdr-num{min-width:auto}
+  .arch-row{flex-direction:column}.arch-label{min-width:auto;border-right:none;border-bottom:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="projets.html" class="nav-back"><i class="fas fa-arrow-left"></i> Projets</a>
+  <div class="nav-title">Atelier 4 · PARCINFO · 5 missions</div>
+  <a href="index.html" class="nav-logo">Miguel<span>.SIO</span></a>
+</header>
+
+<div class="mnav">
+  <a href="#m1" class="a1"><span class="mn">1</span> Inventaire</a>
+  <a href="#m2" class="a2"><span class="mn">2</span> Incidents GLPI</a>
+  <a href="#m3" class="a3"><span class="mn">3</span> Agent GLPI</a>
+  <a href="#m4" class="a4"><span class="mn">4</span> Sécurité & Backup</a>
+  <a href="#m5" class="a5"><span class="mn">5</span> Haute-dispo</a>
+  <a href="#competences">Compétences</a>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">Atelier 4 — BTS SIO SISR · 8-7RP2</div>
+      <h1>PARC<em>INFO</em></h1>
+      <p class="hero-sub">Gestion du parc informatique de TiersLieux86 : inventaire automatisé, gestion des incidents GLPI, sécurisation, sauvegarde et haute-disponibilité avec HaProxy.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="hs"><span class="hs-val">5</span><span class="hs-lbl">Missions</span></div>
+      <div class="hs"><span class="hs-val">GLPI</span><span class="hs-lbl">Outil central</span></div>
+      <div class="hs"><span class="hs-val">HaProxy</span><span class="hs-lbl">Haute-dispo</span></div>
+      <div class="hs"><span class="hs-val">B1·B2·B3</span><span class="hs-lbl">Blocs SIO</span></div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ══════════════════ MISSION 1 ══════════════════ -->
+<div id="m1" class="sl"><div class="sl-line"></div><span>Mission 1 — Le réseau inventorié</span><div class="sl-line"></div></div>
+
+<div class="m1">
+  <div class="mhdr">
+    <div class="mhdr-num"><span class="mhdr-n">Mission 1</span><span class="mhdr-t">Inventaire du parc</span></div>
+    <div class="mhdr-body">
+      <div class="mhdr-desc">Mise en place d'une solution d'inventaire automatisée représentative des systèmes TiersLieux86 et AuditME. La solution remonte les inventaires complets (matériel, OS, logiciels, IP/MAC, utilisateurs) et produit un fichier CSV.</div>
+      <div class="mhdr-chips"><span class="mchip">GLPI</span><span class="mchip">AuditME</span><span class="mchip">FusionInventory</span><span class="mchip">CSV</span><span class="mchip">Windows</span><span class="mchip">Linux</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-l">
+  <div class="ch"><div class="cnum cn1">1</div><div><div class="ct">Contexte & objectifs de l'inventaire</div><div class="cs">Périmètre : 4 machines — 2 clients + 2 serveurs</div></div></div>
+  <p class="d">L'inventaire doit couvrir l'ensemble du parc TiersLieux86 et AuditME. La solution retenue doit être représentative de tous les systèmes présents et produire une remontée automatique des données vers GLPI.</p>
+  <div class="note ni"><i class="fas fa-info-circle"></i><span>Périmètre minimal requis par le CNED : <strong>1 client Windows · 1 client Linux · 1 serveur Windows (AD) · 1 serveur Linux (web)</strong>. La remontée doit inclure noms machines, matériel, OS, logiciels, adresses MAC/IP, utilisateurs connectés et espace disque.</span></div>
+  <table class="dt">
+    <thead><tr><th>Machine</th><th>Système</th><th>Rôle</th><th>Données remontées</th></tr></thead>
+    <tbody>
+      <tr><td>Client-Win</td><td><span class="bz b-bl">Windows 11</span></td><td>Poste utilisateur</td><td>RAM, CPU, OS, logiciels, IP/MAC, user connecté</td></tr>
+      <tr><td>Client-Linux</td><td><span class="bz b-gr">Debian/Ubuntu</span></td><td>Poste utilisateur</td><td>idem + paquets installés, espace disque</td></tr>
+      <tr><td>SRV-AD</td><td><span class="bz b-bl">Windows Server 2022</span></td><td>Contrôleur de domaine</td><td>Rôles AD, RAM, CPU, uptime, utilisateurs</td></tr>
+      <tr><td>SRV-Web</td><td><span class="bz b-gr">Linux (Apache/Nginx)</span></td><td>Serveur web</td><td>Services actifs, ports ouverts, espace disque</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card card-l">
+  <div class="ch"><div class="cnum cn1">2</div><div><div class="ct">Installation GLPI & plugin FusionInventory</div><div class="cs">GLPI = solution ITSM libre pour l'inventaire et les incidents</div></div></div>
+  <p class="d">GLPI (Gestionnaire Libre de Parc Informatique) est déployé sur un serveur Linux. Le plugin FusionInventory (ou son successeur GLPI Agent) est installé sur chaque machine du parc pour la remontée automatique des inventaires.</p>
+  <div class="term">
+    <div class="tbar"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="tlbl">Serveur Linux — Installation GLPI</span></div>
+    <pre><span class="cc"># ── Prérequis LAMP ─────────────────────────────────────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">apt update && apt install -y</span> <span class="cv">apache2 mariadb-server php php-{mysql,curl,gd,mbstring,xml,zip,intl,ldap,apcu,xmlrpc}</span>
+
+<span class="cc"># ── Créer la base de données GLPI ──────────────────────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">mysql -u root -p</span>
+<span class="cp">MariaDB></span> <span class="ck">CREATE DATABASE</span> <span class="cv">glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;</span>
+<span class="cp">MariaDB></span> <span class="ck">CREATE USER</span> <span class="cv">'glpi'@'localhost' IDENTIFIED BY 'GlpiP@ss!';</span>
+<span class="cp">MariaDB></span> <span class="ck">GRANT ALL PRIVILEGES ON</span> <span class="cv">glpi.* TO 'glpi'@'localhost';</span>
+
+<span class="cc"># ── Télécharger et déployer GLPI ───────────────────────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">wget</span> <span class="cv">https://github.com/glpi-project/glpi/releases/download/10.0.15/glpi-10.0.15.tgz</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">tar xzf</span> glpi-10.0.15.tgz <span class="ck">-C</span> /var/www/html/
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">chown -R</span> www-data:www-data /var/www/html/glpi
+<span class="cc"># Continuer l'installation via l'interface web : http://SRV-GLPI/glpi</span></pre>
+  </div>
+  <div class="term">
+    <div class="tbar"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="tlbl">Déploiement agent GLPI — client Linux</span></div>
+    <pre><span class="cc"># ── Installation de l'agent GLPI sur client Linux ──────</span>
+<span class="cp">user@client-linux:~$</span> <span class="ck">curl -s</span> <span class="cv">https://raw.githubusercontent.com/glpi-project/glpi-agent/master/contrib/unix/glpi-agent-install.sh</span> | <span class="ck">sudo bash</span>
+
+<span class="cc"># ── Configurer l'agent pour pointer vers le serveur GLPI</span>
+<span class="cp">root@client-linux:~#</span> <span class="ck">nano</span> /etc/glpi-agent/agent.cfg
+<span class="cc"># server = http://10.2.0.10/glpi   ← adresse du serveur GLPI</span>
+
+<span class="cc"># ── Démarrer et activer l'agent ────────────────────────</span>
+<span class="cp">root@client-linux:~#</span> <span class="ck">systemctl enable --now</span> glpi-agent
+<span class="cp">root@client-linux:~#</span> <span class="ck">glpi-agent --force</span>  <span class="cc"># forcer une remontée immédiate</span></pre>
+  </div>
+  <div class="pg">
+    <div class="pzone" data-key="inv-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'inv-1')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-desktop phi"></i><p class="php">CAPTURE — Interface GLPI (inventaire)</p><span class="phs">Liste des machines remontées dans GLPI</span></div></div>
+    <div class="pzone" data-key="inv-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'inv-2')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-server phi"></i><p class="php">CAPTURE — Détail inventaire d'une machine</p><span class="phs">Matériel, OS, logiciels, IP/MAC affichés</span></div></div>
+  </div>
+  <div class="pzone" data-key="inv-3" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'inv-3')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-file-csv phi"></i><p class="php">CAPTURE — Export CSV de l'inventaire</p><span class="phs">Fichier .csv exporté depuis GLPI avec toutes les machines</span></div></div>
+</div>
+
+<!-- ══════════════════ MISSION 2 ══════════════════ -->
+<div id="m2" class="sl"><div class="sl-line"></div><span>Mission 2 — La gestion des incidents</span><div class="sl-line"></div></div>
+
+<div class="m2">
+  <div class="mhdr">
+    <div class="mhdr-num"><span class="mhdr-n">Mission 2</span><span class="mhdr-t">GLPI & Ticketing</span></div>
+    <div class="mhdr-body">
+      <div class="mhdr-desc">GLPI est paramétré pour permettre la gestion des incidents selon les profils (direction, RH, comptabilité, IT). Les utilisateurs AD sont synchronisés automatiquement. Les stagiaires traitent le niveau 1, les IT le niveau 2.</div>
+      <div class="mhdr-chips"><span class="mchip">GLPI</span><span class="mchip">Synchronisation AD</span><span class="mchip">Profils utilisateurs</span><span class="mchip">Tickets N1/N2</span><span class="mchip">LDAP</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-l2">
+  <div class="ch"><div class="cnum cn2">1</div><div><div class="ct">Synchronisation Active Directory ↔ GLPI</div><div class="cs">Connexion LDAP pour import automatique des utilisateurs</div></div></div>
+  <p class="d">Toute modification dans Active Directory (création, suppression, changement de groupe) doit être automatiquement répercutée dans GLPI. La synchronisation se fait via le protocole LDAP.</p>
+  <div class="note nb"><i class="fas fa-info-circle"></i><span>Dans GLPI : <strong>Configuration → Authentification → LDAP</strong> → saisir l'adresse du DC, le baseDN, les identifiants de service, puis tester la connexion et lancer la synchronisation.</span></div>
+  <table class="dt">
+    <thead><tr><th>Profil GLPI</th><th>Groupe AD</th><th>Droits dans GLPI</th><th>Action sur les tickets</th></tr></thead>
+    <tbody>
+      <tr><td>Technicien N1</td><td>GRP_Stagiaires</td><td>Voir + répondre tickets N1</td><td>Traitement des demandes de niveau 1</td></tr>
+      <tr><td>Technicien N2</td><td>GRP_Employes_IT</td><td>Voir + résoudre tous tickets</td><td>Traitement des incidents complexes</td></tr>
+      <tr><td>Utilisateur</td><td>GRP_Employes / AuditME</td><td>Créer tickets uniquement</td><td>Soumettre des demandes d'incident</td></tr>
+      <tr><td>Administrateur</td><td>GRP_Responsables</td><td>Accès complet GLPI</td><td>Supervision, rapports, configuration</td></tr>
+    </tbody>
+  </table>
+  <div class="pg">
+    <div class="pzone" data-key="glpi-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'glpi-1')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-users phi"></i><p class="php">CAPTURE — Config LDAP dans GLPI</p><span class="phs">Connexion au contrôleur de domaine AD</span></div></div>
+    <div class="pzone" data-key="glpi-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'glpi-2')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-user-tag phi"></i><p class="php">CAPTURE — Profils utilisateurs GLPI</p><span class="phs">Droits configurés par groupe AD</span></div></div>
+  </div>
+</div>
+
+<div class="card card-l2">
+  <div class="ch"><div class="cnum cn2">2</div><div><div class="ct">Mode opératoire — Créer un ticket d'incident</div><div class="cs">Procédure pour les employés TiersLieux86 et AuditME</div></div></div>
+  <p class="d">Document opérationnel expliquant aux utilisateurs comment soumettre un ticket d'incident via GLPI. Accessible depuis l'interface web ou par email.</p>
+  <div class="steps">
+    <div class="step s2"><div class="step-n">1</div><div class="step-body"><div class="step-title">Se connecter à GLPI</div><div class="step-desc">Ouvrir un navigateur → accéder à l'URL GLPI (ex: http://glpi.chasseneuil.tierslieux86.fr) → se connecter avec ses identifiants Active Directory</div></div></div>
+    <div class="step s2"><div class="step-n">2</div><div class="step-body"><div class="step-title">Créer un nouveau ticket</div><div class="step-desc">Cliquer sur "Créer un ticket" → choisir le type (Incident ou Demande) → sélectionner la catégorie concernée (Réseau, Matériel, Logiciel...)</div></div></div>
+    <div class="step s2"><div class="step-n">3</div><div class="step-body"><div class="step-title">Décrire le problème</div><div class="step-desc">Renseigner un titre clair, décrire le problème en détail, indiquer les machines concernées, joindre des captures d'écran si nécessaire</div></div></div>
+    <div class="step s2"><div class="step-n">4</div><div class="step-body"><div class="step-title">Soumettre et suivre</div><div class="step-desc">Cliquer sur "Envoyer" → un numéro de ticket est attribué → suivre l'avancement depuis l'espace "Mes tickets"</div></div></div>
+  </div>
+  <div class="pg">
+    <div class="pzone" data-key="ticket-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'ticket-1')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-ticket-alt phi"></i><p class="php">CAPTURE — Création d'un ticket GLPI</p><span class="phs">Formulaire de soumission rempli</span></div></div>
+    <div class="pzone" data-key="ticket-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'ticket-2')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-tasks phi"></i><p class="php">CAPTURE — File de tickets GLPI</p><span class="phs">Vue technicien avec tickets N1/N2 triés</span></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════ MISSION 3 ══════════════════ -->
+<div id="m3" class="sl"><div class="sl-line"></div><span>Mission 3 — Déploiement de l'agent GLPI</span><div class="sl-line"></div></div>
+
+<div class="m3">
+  <div class="mhdr">
+    <div class="mhdr-num"><span class="mhdr-n">Mission 3</span><span class="mhdr-t">Agent via GPO</span></div>
+    <div class="mhdr-body">
+      <div class="mhdr-desc">Tous les systèmes TiersLieux86 doivent posséder l'agent GLPI. Pour les machines Windows, le déploiement est automatisé via une GPO (Group Policy Object) liée à l'AD. Les machines Linux sont configurées manuellement ou via un script.</div>
+      <div class="mhdr-chips"><span class="mchip">GPO</span><span class="mchip">Active Directory</span><span class="mchip">MSI</span><span class="mchip">GLPI Agent</span><span class="mchip">PowerShell</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-l3">
+  <div class="ch"><div class="cnum cn3">1</div><div><div class="ct">Déploiement via GPO — Machines Windows</div><div class="cs">Installation automatique du MSI GLPI Agent sur tous les postes Windows du domaine</div></div></div>
+  <p class="d">Une GPO de déploiement logiciel est créée dans l'AD pour installer automatiquement le package MSI de l'agent GLPI sur toutes les machines Windows membres du domaine, sans intervention manuelle.</p>
+  <div class="steps">
+    <div class="step s3"><div class="step-n">1</div><div class="step-body"><div class="step-title">Préparer le package MSI</div><div class="step-desc">Télécharger GLPI-Agent-x.x-x64.msi depuis GitHub → placer le fichier dans un partage réseau accessible par tous les postes (ex: \\DC\NETLOGON\GLPI-Agent.msi)</div></div></div>
+    <div class="step s3"><div class="step-n">2</div><div class="step-body"><div class="step-title">Créer la GPO de déploiement</div><div class="step-desc">Gestionnaire de stratégie de groupe → Créer une GPO → Configuration ordinateur → Paramètres du logiciel → Installation de logiciels → Nouveau → Indiquer le chemin UNC du MSI</div></div></div>
+    <div class="step s3"><div class="step-n">3</div><div class="step-body"><div class="step-title">Lier la GPO à l'OU appropriée</div><div class="step-desc">Lier la GPO à l'OU "Ordinateurs" (ou toute OU contenant les postes clients) → L'agent s'installera automatiquement au prochain démarrage des machines</div></div></div>
+    <div class="step s3"><div class="step-n">4</div><div class="step-body"><div class="step-title">Configurer le serveur GLPI</div><div class="step-desc">Via les options MSI ou un fichier de transform (.mst) : définir l'URL du serveur GLPI et l'intervalle de remontée (ex: toutes les 24h)</div></div></div>
+  </div>
+  <div class="term">
+    <div class="tbar"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="tlbl">PowerShell (DC) — Vérification déploiement GPO</span></div>
+    <pre><span class="cc"># Forcer l'application de la GPO sur un poste client</span>
+<span class="cp">PS C:\></span> <span class="ck">gpupdate /force</span>
+
+<span class="cc"># Vérifier si l'agent est installé sur un poste distant</span>
+<span class="cp">PS C:\></span> <span class="ck">Invoke-Command</span> <span class="cv">-ComputerName "Client-Win"</span> <span class="cv">-ScriptBlock</span> {
+    <span class="ck">Get-Service</span> <span class="cv">"GLPI-Agent"</span> | <span class="ck">Select-Object</span> Name, Status, StartType
+}
+
+<span class="cc"># Voir les résultats de la GPO sur un poste</span>
+<span class="cp">PS C:\></span> <span class="ck">gpresult /r /scope computer</span></pre>
+  </div>
+  <div class="pg">
+    <div class="pzone" data-key="gpo-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'gpo-1')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-sitemap phi"></i><p class="php">CAPTURE — GPO créée dans l'AD</p><span class="phs">Gestionnaire de stratégie de groupe avec GPO GLPI-Agent</span></div></div>
+    <div class="pzone" data-key="gpo-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'gpo-2')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-check-circle phi"></i><p class="php">CAPTURE — Agent installé sur Client-Win</p><span class="phs">Services Windows — GLPI-Agent : Running</span></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════ MISSION 4 ══════════════════ -->
+<div id="m4" class="sl"><div class="sl-line"></div><span>Mission 4 — Sécurité & sauvegarde des données</span><div class="sl-line"></div></div>
+
+<div class="m4">
+  <div class="mhdr">
+    <div class="mhdr-num"><span class="mhdr-n">Mission 4</span><span class="mhdr-t">HTTPS & Backup</span></div>
+    <div class="mhdr-body">
+      <div class="mhdr-desc">Sécurisation des échanges GLPI via HTTPS (certificat SSL/TLS). Mise en place d'une sauvegarde automatisée complète et journalière des données GLPI et de l'inventaire pour garantir la continuité de service.</div>
+      <div class="mhdr-chips"><span class="mchip">HTTPS</span><span class="mchip">SSL/TLS</span><span class="mchip">Cron</span><span class="mchip">mysqldump</span><span class="mchip">Sauvegarde automatisée</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-l4">
+  <div class="ch"><div class="cnum cn4">1</div><div><div class="ct">Sécurisation HTTPS — Certificat SSL/TLS</div><div class="cs">Confidentialité des échanges entre GLPI et les utilisateurs</div></div></div>
+  <p class="d">GLPI doit communiquer en HTTPS pour protéger les identifiants et données sensibles. Un certificat auto-signé est généré pour l'environnement de test ; en production un certificat Let's Encrypt serait utilisé.</p>
+  <div class="term">
+    <div class="tbar"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="tlbl">Serveur GLPI Linux — Activation HTTPS</span></div>
+    <pre><span class="cc"># ── Générer un certificat auto-signé (lab) ─────────────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">openssl req -x509 -nodes -days 365 -newkey rsa:2048</span> \
+    <span class="cv">-keyout /etc/ssl/private/glpi.key</span> \
+    <span class="cv">-out /etc/ssl/certs/glpi.crt</span> \
+    <span class="cv">-subj "/CN=glpi.chasseneuil.tierslieux86.fr"</span>
+
+<span class="cc"># ── Activer SSL dans Apache ─────────────────────────────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">a2enmod</span> ssl
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">a2ensite</span> default-ssl
+
+<span class="cc"># ── Configurer le VirtualHost HTTPS (/etc/apache2/sites-available/glpi-ssl.conf)</span>
+<span class="csh">&lt;VirtualHost *:443&gt;</span>
+    <span class="ck">ServerName</span>     <span class="cv">glpi.chasseneuil.tierslieux86.fr</span>
+    <span class="ck">DocumentRoot</span>   <span class="cv">/var/www/html/glpi</span>
+    <span class="ck">SSLEngine</span>      <span class="cv">on</span>
+    <span class="ck">SSLCertificateFile</span>    <span class="cv">/etc/ssl/certs/glpi.crt</span>
+    <span class="ck">SSLCertificateKeyFile</span> <span class="cv">/etc/ssl/private/glpi.key</span>
+<span class="csh">&lt;/VirtualHost&gt;</span>
+
+<span class="cc"># ── Rediriger HTTP → HTTPS ──────────────────────────────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">a2enmod</span> rewrite
+<span class="cc"># Dans le VirtualHost *:80 : Redirect "/" "https://glpi.chasseneuil.tierslieux86.fr/"</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">systemctl restart</span> apache2</pre>
+  </div>
+</div>
+
+<div class="card card-l4">
+  <div class="ch"><div class="cnum cn4">2</div><div><div class="ct">Sauvegarde automatisée journalière</div><div class="cs">Base de données GLPI + fichiers → cron quotidien</div></div></div>
+  <p class="d">Une solution de sauvegarde complète et journalière est mise en place. Elle couvre la base de données MariaDB (via mysqldump) et les fichiers GLPI. Les sauvegardes sont conservées 7 jours avec rotation automatique.</p>
+  <div class="term">
+    <div class="tbar"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="tlbl">Script de sauvegarde — /usr/local/bin/backup-glpi.sh</span></div>
+    <pre><span class="csh">#!/bin/bash</span>
+<span class="cc"># ── Script de sauvegarde GLPI (journalier) ─────────────</span>
+<span class="ck">DATE</span>=<span class="cv">$(date +%Y%m%d_%H%M)</span>
+<span class="ck">BACKUP_DIR</span>=<span class="cv">"/var/backups/glpi"</span>
+<span class="ck">DB_NAME</span>=<span class="cv">"glpi"</span>
+<span class="ck">DB_USER</span>=<span class="cv">"glpi"</span>
+<span class="ck">DB_PASS</span>=<span class="cv">"GlpiP@ss!"</span>
+<span class="ck">GLPI_DIR</span>=<span class="cv">"/var/www/html/glpi"</span>
+
+<span class="cc"># Créer le répertoire de sauvegarde du jour</span>
+<span class="ck">mkdir -p</span> $BACKUP_DIR/$DATE
+
+<span class="cc"># Sauvegarde de la base de données</span>
+<span class="ck">mysqldump -u</span> $DB_USER <span class="ck">-p</span>$DB_PASS $DB_NAME <span class="cv">> $BACKUP_DIR/$DATE/glpi_db.sql</span>
+
+<span class="cc"># Sauvegarde des fichiers GLPI</span>
+<span class="ck">tar czf</span> $BACKUP_DIR/$DATE/glpi_files.tar.gz $GLPI_DIR/files/
+
+<span class="cc"># Suppression des sauvegardes de plus de 7 jours (rotation)</span>
+<span class="ck">find</span> $BACKUP_DIR <span class="ck">-type d -mtime +7 -exec rm -rf {} +</span>
+
+<span class="ck">echo</span> <span class="cv">"Sauvegarde $DATE terminée avec succès"</span> >> /var/log/backup-glpi.log</pre>
+  </div>
+  <div class="term">
+    <div class="tbar"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="tlbl">Planification via cron (chaque nuit à 2h00)</span></div>
+    <pre><span class="cc"># ── Ajouter la tâche cron ───────────────────────────────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">chmod +x</span> /usr/local/bin/backup-glpi.sh
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">crontab -e</span>
+<span class="cc"># Ajouter la ligne suivante :</span>
+<span class="cv">0 2 * * * /usr/local/bin/backup-glpi.sh</span>
+
+<span class="cc"># ── Vérifier la liste des crons actifs ─────────────────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">crontab -l</span>
+
+<span class="cc"># ── Tester la restauration depuis une sauvegarde ───────</span>
+<span class="cp">root@srv-glpi:~#</span> <span class="ck">mysql -u</span> glpi <span class="ck">-p</span> glpi <span class="cv">< /var/backups/glpi/20260421_020000/glpi_db.sql</span></pre>
+  </div>
+  <div class="pg">
+    <div class="pzone" data-key="sec-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'sec-1')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-lock phi"></i><p class="php">CAPTURE — GLPI accessible en HTTPS</p><span class="phs">Cadenas HTTPS dans le navigateur sur l'interface GLPI</span></div></div>
+    <div class="pzone" data-key="sec-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'sec-2')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-archive phi"></i><p class="php">CAPTURE — Sauvegarde créée</p><span class="phs">Répertoire /var/backups/glpi avec les archives du jour</span></div></div>
+  </div>
+  <div class="pzone" data-key="sec-3" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'sec-3')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-undo phi"></i><p class="php">CAPTURE — Test de restauration réussi</p><span class="phs">Restauration de la base depuis le fichier SQL de sauvegarde</span></div></div>
+</div>
+
+<!-- ══════════════════ MISSION 5 ══════════════════ -->
+<div id="m5" class="sl"><div class="sl-line"></div><span>Mission 5 — Haute-disponibilité HaProxy</span><div class="sl-line"></div></div>
+
+<div class="m5">
+  <div class="mhdr">
+    <div class="mhdr-num"><span class="mhdr-n">Mission 5</span><span class="mhdr-t">HaProxy & GLPI HA</span></div>
+    <div class="mhdr-body">
+      <div class="mhdr-desc">Un second serveur GLPI est déployé. HaProxy distribue la charge entre les deux serveurs GLPI. En cas de panne de l'un, l'autre prend le relais automatiquement. La base de données est externalisée sur un 3e serveur partagé.</div>
+      <div class="mhdr-chips"><span class="mchip">HaProxy</span><span class="mchip">Load Balancer</span><span class="mchip">2 serveurs GLPI</span><span class="mchip">BDD externalisée</span><span class="mchip">Health checks</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-l5">
+  <div class="ch"><div class="cnum cn5">1</div><div><div class="ct">Architecture haute-disponibilité</div><div class="cs">HaProxy en frontal + 2 serveurs GLPI + 1 serveur BDD partagé</div></div></div>
+  <p class="d">L'architecture HA permet de garantir la continuité du service GLPI même en cas de panne d'un serveur applicatif. La base de données est sur un serveur dédié vers lequel les deux serveurs GLPI pointent.</p>
+
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label">Utilisateurs</div>
+      <div class="arch-nodes"><div class="anode"><div class="anode-box">Navigateurs clients</div><div class="anode-lbl">HTTP/HTTPS :443</div></div><div class="arch-arrow">↓</div></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Load Balancer</div>
+      <div class="arch-nodes"><div class="anode"><div class="anode-box active">HaProxy · 10.2.0.20</div><div class="anode-lbl">Frontal · Port 443</div></div><div class="arch-arrow">↙ ↘</div></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Serveurs GLPI</div>
+      <div class="arch-nodes">
+        <div class="anode"><div class="anode-box blue">GLPI-SRV-1 · 10.2.0.21</div><div class="anode-lbl">Actif</div></div>
+        <div class="arch-arrow">+</div>
+        <div class="anode"><div class="anode-box blue">GLPI-SRV-2 · 10.2.0.22</div><div class="anode-lbl">Backup / Round-robin</div></div>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Base de données</div>
+      <div class="arch-nodes"><div class="anode"><div class="anode-box green">MariaDB-SRV · 10.2.0.23</div><div class="anode-lbl">BDD partagée — Port 3306</div></div></div>
+    </div>
+    <div class="arch-note">* En cas de panne de GLPI-SRV-1, HaProxy redirige automatiquement tout le trafic vers GLPI-SRV-2 (health check toutes les 2s)</div>
+  </div>
+
+  <div class="term">
+    <div class="tbar"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="tlbl">HaProxy — /etc/haproxy/haproxy.cfg</span></div>
+    <pre><span class="cc"># ── Installation HaProxy ────────────────────────────────</span>
+<span class="cp">root@haproxy:~#</span> <span class="ck">apt install -y</span> haproxy
+
+<span class="cc"># ── Configuration /etc/haproxy/haproxy.cfg ─────────────</span>
+<span class="csh">global</span>
+    <span class="ck">log</span> /dev/log local0
+    <span class="ck">maxconn</span> <span class="cv">2000</span>
+
+<span class="csh">defaults</span>
+    <span class="ck">mode</span>    http
+    <span class="ck">timeout</span> connect 5s
+    <span class="ck">timeout</span> client  30s
+    <span class="ck">timeout</span> server  30s
+
+<span class="csh">frontend glpi_front</span>
+    <span class="ck">bind</span> <span class="cv">*:443 ssl crt /etc/haproxy/certs/glpi.pem</span>
+    <span class="ck">default_backend</span> glpi_servers
+
+<span class="csh">backend glpi_servers</span>
+    <span class="ck">balance</span>   roundrobin
+    <span class="ck">option</span>    httpchk GET /glpi/index.php
+    <span class="ck">server</span> <span class="cv">glpi1 10.2.0.21:80 check inter 2s rise 2 fall 3</span>
+    <span class="ck">server</span> <span class="cv">glpi2 10.2.0.22:80 check inter 2s rise 2 fall 3 backup</span>
+
+<span class="csh">listen stats</span>
+    <span class="ck">bind</span> <span class="cv">*:8404</span>
+    <span class="ck">stats enable</span>
+    <span class="ck">stats uri</span> /haproxy-stats</pre>
+  </div>
+
+  <div class="note nw"><i class="fas fa-info-circle"></i><span>La directive <strong>check inter 2s rise 2 fall 3</strong> signifie : vérifier toutes les 2s, considérer le serveur UP après 2 succès consécutifs, DOWN après 3 échecs. Le mot-clé <strong>backup</strong> fait de glpi2 un serveur de secours activé uniquement si glpi1 est DOWN.</span></div>
+
+  <div class="tr2"><span class="trs">HaProxy</span><span class="tra">→</span><span class="trd">GLPI-SRV-1 (health check /glpi/index.php)</span><span class="tres twait">À tester</span></div>
+  <div class="tr2"><span class="trs">HaProxy</span><span class="tra">→</span><span class="trd">GLPI-SRV-2 (backup activé si SRV-1 DOWN)</span><span class="tres twait">À tester</span></div>
+  <div class="tr2"><span class="trs">Client Web</span><span class="tra">→</span><span class="trd">GLPI accessible via HaProxy après arrêt de SRV-1</span><span class="tres twait">À tester</span></div>
+
+  <div class="pg" style="margin-top:1.25rem">
+    <div class="pzone" data-key="ha-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'ha-1')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-chart-bar phi"></i><p class="php">CAPTURE — Dashboard HaProxy Stats</p><span class="phs">:8404/haproxy-stats — état des deux backends</span></div></div>
+    <div class="pzone" data-key="ha-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'ha-2')"><span class="pzone-saved">SAUVEGARDÉE ✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-exchange-alt phi"></i><p class="php">CAPTURE — Basculement automatique</p><span class="phs">GLPI reste accessible après arrêt de SRV-1</span></div></div>
+  </div>
+</div>
+
+<!-- COMPÉTENCES -->
+<div id="competences" class="sl"><div class="sl-line"></div><span>Compétences BTS SIO SISR mobilisées</span><div class="sl-line"></div></div>
+
+<div class="compg">
+  <div class="compc"><div class="compb cb1">B1 — Support</div><div class="compt">Gérer le patrimoine informatique</div><div class="compd">Inventaire automatisé GLPI de tout le parc TiersLieux86 avec export CSV.</div></div>
+  <div class="compc"><div class="compb cb1">B1 — Support</div><div class="compt">Gérer les incidents</div><div class="compd">Ticketing GLPI avec niveaux N1/N2, profils par groupe AD, mode opératoire utilisateur.</div></div>
+  <div class="compc"><div class="compb cb2">B2 — Exploitation</div><div class="compt">Exploiter des serveurs Linux</div><div class="compd">Déploiement GLPI sur Linux (LAMP), configuration Apache/SSL, scripts bash de sauvegarde.</div></div>
+  <div class="compc"><div class="compb cb2">B2 — Exploitation</div><div class="compt">Automatiser les tâches</div><div class="compd">Déploiement agent GLPI via GPO, sauvegarde journalière via cron, health checks HaProxy.</div></div>
+  <div class="compc"><div class="compb cb2">B2 — Exploitation</div><div class="compt">Haute disponibilité</div><div class="compd">Architecture HaProxy avec 2 serveurs GLPI + BDD externalisée, basculement automatique.</div></div>
+  <div class="compc"><div class="compb cb3">B3 — Cybersécurité</div><div class="compt">Sécuriser les services</div><div class="compd">HTTPS avec SSL/TLS sur GLPI, redirection HTTP→HTTPS, confidentialité des échanges.</div></div>
+  <div class="compc"><div class="compb cb3">B3 — Cybersécurité</div><div class="compt">Assurer la continuité</div><div class="compd">Sauvegarde complète journalière avec rotation 7 jours, test de restauration documenté.</div></div>
+  <div class="compc"><div class="compb cb1">B1 — Support</div><div class="compt">Synchronisation AD ↔ GLPI</div><div class="compd">Connexion LDAP, import automatique des utilisateurs et groupes depuis Active Directory.</div></div>
+</div>
+
+<div class="cta">
+  <h3>Compte rendu complet</h3>
+  <p>Documentation technique Atelier 4 — Inventaire · Incidents · Sécurité · Haute-disponibilité</p>
+  <a href="Compte_Rendu_ParcInfo.pdf" class="cta-btn"><i class="fas fa-file-pdf"></i> Télécharger le rapport PDF</a>
+</div>
+
+</main>
+<footer>Miguel Etienne &nbsp;·&nbsp; Atelier 4 — PARCINFO &nbsp;·&nbsp; BTS SIO SISR &nbsp;·&nbsp; 2026</footer>
+
+<script>
+const DB_NAME='parcinfo_photos',DB_VER=1,STORE='photos';
+let db=null;
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VER);r.onupgradeneeded=e=>e.target.result.createObjectStore(STORE);r.onsuccess=e=>{db=e.target.result;res(db)};r.onerror=e=>rej(e)})}
+function saveDB(k,v){const t=db.transaction(STORE,'readwrite');t.objectStore(STORE).put(v,k)}
+function loadDB(k){return new Promise(r=>{const t=db.transaction(STORE,'readonly');const q=t.objectStore(STORE).get(k);q.onsuccess=e=>r(e.target.result||null);q.onerror=()=>r(null)})}
+function applyPhoto(z,src){const img=z.querySelector('.pzone-img');const inner=z.querySelector('.pzone-inner');const badge=z.querySelector('.pzone-saved');img.src=src;img.style.display='block';inner.style.display='none';badge.style.display='block';z.style.cursor='default';img.onclick=e=>{e.stopPropagation();z.querySelector('input').click()}}
+function savePhoto(input,key){if(!input.files||!input.files[0])return;const r=new FileReader();r.onload=function(e){saveDB(key,e.target.result);applyPhoto(input.closest('.pzone'),e.target.result)};r.readAsDataURL(input.files[0])}
+function triggerFile(z){if(z.querySelector('.pzone-img').style.display==='block')return;z.querySelector('input[type="file"]').click()}
+async function loadAll(){await openDB();document.querySelectorAll('.pzone[data-key]').forEach(async z=>{const src=await loadDB(z.dataset.key);if(src)applyPhoto(z,src)})}
+document.querySelectorAll('.mnav a').forEach(a=>{a.addEventListener('click',function(e){const h=this.getAttribute('href');if(h&&h.startsWith('#')){e.preventDefault();const el=document.querySelector(h);if(el){const top=el.getBoundingClientRect().top+window.scrollY-110;window.scrollTo({top,behavior:'smooth'})}}})});
+loadAll();
+</script>
+</body>
+</html>

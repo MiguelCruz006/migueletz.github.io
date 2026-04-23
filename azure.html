@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infra Windows Azure — Terraform | Miguel Etienne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&family=Barlow+Condensed:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --void:#05060a;--deep:#080b14;--layer:#0d1120;--panel:#111827;
+  --az:#0078d4;--az2:#50a8ff;--az3:#b3d7ff;
+  --tf:#7b42bc;--tf2:#a970ff;--tf3:#d4b3ff;
+  --win:#00bcf2;--win2:#5dd9f8;
+  --green:#00e5a0;--amber:#ffb74d;--red:#ff5252;
+  --text:#e8eaf6;--muted:#6272a4;--border:rgba(255,255,255,0.07);
+  --f:'Barlow',sans-serif;--fc:'Barlow Condensed',sans-serif;--m:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--text);font-family:var(--f);overflow-x:hidden;font-size:15px}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,120,212,0.012) 2px,rgba(0,120,212,0.012) 4px);pointer-events:none;z-index:9998}
+
+/* NAV */
+header{position:fixed;top:0;left:0;right:0;z-index:500;height:52px;background:rgba(5,6,10,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 2rem;justify-content:space-between}
+.nav-back{display:flex;align-items:center;gap:8px;color:var(--az2);text-decoration:none;font-family:var(--m);font-size:10px;letter-spacing:.08em;transition:gap .2s}
+.nav-back:hover{gap:13px}
+.nav-center{font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
+.nav-logo{font-family:var(--fc);font-weight:800;font-size:17px;color:var(--text);text-decoration:none;letter-spacing:.06em;text-transform:uppercase}
+.nav-logo span{color:var(--az2)}
+
+/* SIDE NAV */
+.sidenav{position:fixed;left:0;top:52px;bottom:0;width:200px;background:var(--deep);border-right:1px solid var(--border);z-index:400;display:flex;flex-direction:column;padding:1.5rem 0;overflow-y:auto}
+.sidenav-section{font-family:var(--m);font-size:8px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;padding:0 1.25rem;margin-bottom:8px;margin-top:16px}
+.sidenav a{display:flex;align-items:center;gap:10px;padding:8px 1.25rem;font-family:var(--m);font-size:10px;color:var(--muted);text-decoration:none;letter-spacing:.08em;transition:all .15s;border-left:2px solid transparent}
+.sidenav a:hover{color:var(--text);background:rgba(255,255,255,0.03)}
+.sidenav a.az{border-left-color:var(--az);color:var(--az2)}
+.sidenav a.tf{border-left-color:var(--tf);color:var(--tf2)}
+.sidenav a.win{border-left-color:var(--win);color:var(--win2)}
+.sidenav a.gr{border-left-color:var(--green);color:var(--green)}
+.sidenav a i{font-size:10px;width:14px;flex-shrink:0}
+
+/* MAIN */
+.page{margin-left:200px;padding-top:52px;min-height:100vh}
+
+/* HERO */
+.hero{background:var(--deep);padding:4rem 3rem 3rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.hero-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(0,120,212,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,120,212,0.06) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.hero-glow{position:absolute;top:-100px;right:-100px;width:600px;height:400px;background:radial-gradient(ellipse,rgba(0,120,212,0.12) 0%,transparent 65%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-80px;left:0;width:400px;height:300px;background:radial-gradient(ellipse,rgba(123,66,188,0.08) 0%,transparent 65%);pointer-events:none}
+.hero-inner{max-width:900px;position:relative}
+.hero-breadcrumb{font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.hero-breadcrumb span{color:var(--az2)}
+h1{font-family:var(--fc);font-weight:900;font-size:clamp(3rem,7vw,6rem);line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px}
+h1 .l1{display:block;color:var(--text);font-style:italic;font-weight:300;font-size:.45em;letter-spacing:.1em;text-transform:uppercase;font-family:var(--m);margin-bottom:4px}
+h1 .l2{display:block;color:var(--az2)}
+h1 .l3{display:block;color:var(--tf2);font-size:.6em}
+.hero-desc{font-size:15px;color:var(--muted);max-width:580px;line-height:1.8;margin-bottom:2rem;font-weight:300}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px}
+.htag{font-family:var(--m);font-size:9px;padding:4px 12px;border-radius:2px;letter-spacing:.12em;text-transform:uppercase}
+.ht-az{background:rgba(0,120,212,0.15);color:var(--az2);border:1px solid rgba(0,120,212,0.3)}
+.ht-tf{background:rgba(123,66,188,0.15);color:var(--tf2);border:1px solid rgba(123,66,188,0.3)}
+.ht-win{background:rgba(0,188,242,0.12);color:var(--win2);border:1px solid rgba(0,188,242,0.25)}
+
+/* CONTENT */
+.content{max-width:900px;margin:0 auto;padding:2.5rem 3rem 6rem}
+
+/* SECTION */
+.slabel{display:flex;align-items:center;gap:16px;margin:3rem 0 1.5rem}
+.sl-bar{flex:1;height:1px;background:var(--border)}
+.sl-text{font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+
+/* CARD */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:1.75rem;margin-bottom:1.25rem;position:relative}
+.card-az{border-top:2px solid var(--az)}
+.card-tf{border-top:2px solid var(--tf)}
+.card-win{border-top:2px solid var(--win)}
+.card-green{border-top:2px solid var(--green)}
+.ch{display:flex;align-items:center;gap:14px;margin-bottom:1.25rem}
+.cicon{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ci-az{background:rgba(0,120,212,0.2);color:var(--az2)}
+.ci-tf{background:rgba(123,66,188,0.2);color:var(--tf2)}
+.ci-win{background:rgba(0,188,242,0.15);color:var(--win2)}
+.ci-gr{background:rgba(0,229,160,0.12);color:var(--green)}
+.ct{font-family:var(--fc);font-weight:700;font-size:1.1rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text)}
+.cs{font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-top:2px}
+p.d{color:var(--muted);font-size:13.5px;font-weight:300;line-height:1.8;margin-bottom:1.25rem}
+
+/* VM GRID */
+.vmg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem}
+.vmc{background:var(--layer);border:1px solid var(--border);border-radius:4px;padding:16px;transition:border-color .2s}
+.vmc:hover{border-color:rgba(0,120,212,0.3)}
+.vmc-icon{font-size:2rem;margin-bottom:10px}
+.vmc-name{font-family:var(--m);font-weight:700;font-size:11px;color:var(--az2);margin-bottom:3px}
+.vmc-os{font-size:10px;color:var(--muted);font-family:var(--m);margin-bottom:6px}
+.vmc-ip{font-family:var(--m);font-size:10px;color:var(--green);margin-top:6px}
+.vmc-sku{font-size:10px;color:var(--muted)}
+
+/* INFRA FLOW */
+.flow{display:flex;flex-direction:column;gap:0;margin-bottom:1.25rem;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.flow-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border)}
+.flow-row:last-child{border-bottom:none}
+.flow-lbl{background:var(--layer);padding:10px 14px;min-width:130px;display:flex;align-items:center;font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;border-right:1px solid var(--border);flex-shrink:0}
+.flow-nodes{display:flex;align-items:center;gap:8px;padding:10px 14px;flex:1;flex-wrap:wrap}
+.fnode{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:6px 12px;font-family:var(--m);font-size:9.5px;color:var(--text);white-space:nowrap}
+.fnode.az{border-color:rgba(0,120,212,0.4);color:var(--az2)}
+.fnode.tf{border-color:rgba(123,66,188,0.4);color:var(--tf2)}
+.fnode.win{border-color:rgba(0,188,242,0.35);color:var(--win2)}
+.fnode.gr{border-color:rgba(0,229,160,0.3);color:var(--green)}
+.fnode.red{border-color:rgba(255,82,82,0.35);color:var(--red)}
+.farrow{color:var(--muted);font-size:12px}
+
+/* NSG TABLE */
+.nsg-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1.25rem}
+.nsg-table th{background:rgba(255,255,255,0.04);color:var(--muted);font-family:var(--m);font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.nsg-table td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.03);color:#cbd5e1;font-family:var(--m);font-size:10.5px}
+.nsg-table tr:last-child td{border-bottom:none}
+.nsg-table tr:hover td{background:rgba(255,255,255,0.02)}
+.bz{display:inline-block;padding:2px 8px;border-radius:2px;font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:var(--m)}
+.b-az{background:rgba(0,120,212,0.15);color:var(--az2);border:1px solid rgba(0,120,212,0.25)}
+.b-tf{background:rgba(123,66,188,0.15);color:var(--tf2);border:1px solid rgba(123,66,188,0.25)}
+.b-gr{background:rgba(0,229,160,0.1);color:var(--green);border:1px solid rgba(0,229,160,0.2)}
+.b-am{background:rgba(255,183,77,0.1);color:var(--amber);border:1px solid rgba(255,183,77,0.2)}
+.b-win{background:rgba(0,188,242,0.12);color:var(--win2);border:1px solid rgba(0,188,242,0.25)}
+.b-red{background:rgba(255,82,82,0.1);color:var(--red);border:1px solid rgba(255,82,82,0.2)}
+
+/* TERMINAL */
+.term{background:#02040a;border:1px solid rgba(0,120,212,0.2);border-radius:4px;margin-bottom:1.25rem;overflow:hidden}
+.term.t-tf{border-color:rgba(123,66,188,0.25)}
+.tbar{background:#050810;padding:9px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.dot{width:8px;height:8px;border-radius:50%}
+.dr{background:var(--red)}.dy{background:var(--amber)}.dg{background:var(--green)}
+.tlbl{margin-left:auto;font-family:var(--m);font-size:8.5px;color:var(--muted);letter-spacing:.1em}
+.term pre{padding:18px 20px;font-family:var(--m);font-size:11px;line-height:1.95;overflow-x:auto;white-space:pre}
+.term.t-tf pre{color:var(--tf3)}
+.cc{color:#253455}.ck{color:var(--az2)}.cv{color:var(--green)}.cp{color:#818cf8}
+.ck2{color:var(--tf2)}.cv2{color:var(--tf3)}.cp2{color:#c084fc}
+
+/* NOTE */
+.note{display:flex;gap:10px;padding:12px 16px;border-radius:3px;margin-bottom:1.25rem;font-size:13px}
+.note i{flex-shrink:0;margin-top:2px}
+.naz{background:rgba(0,120,212,0.08);border:1px solid rgba(0,120,212,0.2);color:var(--az3)}
+.ntf{background:rgba(123,66,188,0.08);border:1px solid rgba(123,66,188,0.2);color:var(--tf3)}
+.nwin{background:rgba(0,188,242,0.08);border:1px solid rgba(0,188,242,0.18);color:var(--win2)}
+.ngr{background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.18);color:var(--green)}
+.nrd{background:rgba(255,82,82,0.07);border:1px solid rgba(255,82,82,0.18);color:var(--red)}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.step{display:flex;gap:14px;background:var(--layer);border:1px solid var(--border);border-radius:4px;padding:12px 14px;align-items:flex-start}
+.stepn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.saz{background:var(--az2);color:#000}.stf{background:var(--tf2);color:#000}.sgr{background:var(--green);color:#000}
+.stept{font-family:var(--m);font-size:10px;color:var(--text);font-weight:700;margin-bottom:2px}
+.stepd{font-size:12.5px;color:var(--muted)}
+
+/* COMP */
+.compg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.compc{background:var(--layer);border:1px solid var(--border);border-radius:4px;padding:14px}
+.compb{font-family:var(--m);font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:5px}
+.b1c{color:var(--az2)}.b2c{color:var(--tf2)}.b3c{color:var(--win2)}
+.compt{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.compd{font-size:11px;color:var(--muted)}
+
+/* ══ PHOTO ZONE — PERSISTANCE IndexedDB ══ */
+.pzone{border:1.5px dashed rgba(0,120,212,0.25);border-radius:4px;background:rgba(0,120,212,0.03);position:relative;overflow:hidden;transition:border-color .2s,background .2s;margin-bottom:10px}
+.pzone:hover{border-color:rgba(0,120,212,0.5);background:rgba(0,120,212,0.06)}
+/* L'input couvre toute la zone SEULEMENT quand vide */
+.pzone.empty input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:5}
+.pzone.filled input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:5}
+.pzone-ph{padding:28px 20px;text-align:center;pointer-events:none}
+.pzone-ph i{font-size:1.8rem;color:rgba(0,120,212,0.2);margin-bottom:10px;display:block}
+.pzone-ph p{font-family:var(--m);font-size:10px;color:#253455;letter-spacing:.1em}
+.pzone-ph span{display:block;font-size:10px;color:#1a2440;margin-top:3px}
+.pzone-img{width:100%;max-height:460px;object-fit:contain;border-radius:4px;display:none;padding:8px}
+.pzone-badge{display:none;position:absolute;top:8px;right:8px;background:var(--green);color:#000;font-family:var(--m);font-size:8.5px;padding:3px 10px;border-radius:2px;letter-spacing:.1em;z-index:10;pointer-events:none}
+.pzone-change{display:none;position:absolute;bottom:8px;right:8px;background:rgba(0,120,212,0.85);color:white;font-family:var(--m);font-size:8.5px;padding:3px 10px;border-radius:2px;letter-spacing:.1em;z-index:10;pointer-events:none}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+
+/* CTA */
+.cta{background:var(--deep);border:1px solid rgba(0,120,212,0.2);border-radius:4px;padding:2.5rem;text-align:center;position:relative;overflow:hidden;margin-top:2rem}
+.cta::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(0,120,212,0.1),transparent 65%)}
+.cta-title{font-family:var(--fc);font-weight:800;font-size:1.6rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text);margin-bottom:6px}
+.cta-sub{color:var(--muted);font-size:13px;margin-bottom:1.5rem}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--az);color:white;text-decoration:none;padding:12px 24px;border-radius:3px;font-family:var(--m);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:transform .2s,background .2s}
+.cta-btn:hover{transform:translateY(-2px);background:var(--az2);color:#000}
+
+footer{text-align:center;padding:2.5rem 1rem;font-family:var(--m);font-size:9px;color:#1a2440;letter-spacing:.28em;text-transform:uppercase;border-top:1px solid var(--border);margin-left:200px}
+
+@media(max-width:900px){
+  .sidenav{display:none}.page{margin-left:0}footer{margin-left:0}
+  .pg{grid-template-columns:1fr}.content{padding:1.5rem}
+  .hero{padding:3rem 1.5rem 2rem}.vmg{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="projets.html" class="nav-back"><i class="fas fa-arrow-left"></i> Projets</a>
+  <div class="nav-center">Stage Paradigm · Versailles · 2025</div>
+  <a href="index.html" class="nav-logo">Miguel<span>.SIO</span></a>
+</header>
+
+<nav class="sidenav">
+  <div class="sidenav-section">Navigation</div>
+  <a href="#contexte" class="az"><i class="fas fa-building"></i> Contexte</a>
+  <a href="#infra" class="win"><i class="fab fa-windows"></i> VMs Windows</a>
+  <a href="#reseau" class="az"><i class="fas fa-network-wired"></i> Réseau VNet</a>
+  <a href="#nsg" class="az"><i class="fas fa-shield-alt"></i> NSG RDP/SSH</a>
+  <a href="#terraform" class="tf"><i class="fas fa-code"></i> Terraform</a>
+  <a href="#deploy" class="tf"><i class="fas fa-rocket"></i> Déploiement</a>
+  <a href="#tests" class="gr"><i class="fas fa-check-circle"></i> Tests</a>
+  <a href="#competences"><i class="fas fa-graduation-cap"></i> Compétences</a>
+</nav>
+
+<div class="page">
+
+<div class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+    <div class="hero-breadcrumb">
+      Stage <i class="fas fa-chevron-right" style="font-size:7px"></i>
+      <span>Paradigm — Versailles</span>
+      <i class="fas fa-chevron-right" style="font-size:7px"></i>
+      Superviseur : Yasser Salimi
+    </div>
+    <h1>
+      <span class="l1">Projet Cloud — Azure IaC</span>
+      <span class="l2">Windows</span>
+      <span class="l3">Infrastructure as Code · Terraform</span>
+    </h1>
+    <p class="hero-desc">Déploiement d'une infrastructure Windows sur Microsoft Azure via Terraform : deux VMs Windows Server 2022, un poste client Windows 11, un réseau virtuel segmenté et des règles de sécurité NSG (RDP 3389 + SSH 22).</p>
+    <div class="hero-tags">
+      <span class="htag ht-az"><i class="fas fa-cloud"></i> Microsoft Azure</span>
+      <span class="htag ht-tf"><i class="fas fa-code"></i> Terraform</span>
+      <span class="htag ht-win"><i class="fab fa-windows"></i> Windows Server 2022</span>
+      <span class="htag ht-win">Windows 11</span>
+      <span class="htag ht-az">VNet · NSG</span>
+      <span class="htag ht-az">RDP · SSH</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ══ CONTEXTE ══ -->
+<div id="contexte" class="slabel"><div class="sl-bar"></div><span class="sl-text">01 — Contexte du projet</span><div class="sl-bar"></div></div>
+
+<div class="card card-az">
+  <div class="ch"><div class="cicon ci-az"><i class="fas fa-building"></i></div><div><div class="ct">Stage Paradigm — Versailles</div><div class="cs">Superviseur : Yasser Salimi · Janvier — Mars 2025</div></div></div>
+  <p class="d">Dans le cadre du stage chez Paradigm, j'ai déployé une infrastructure cloud Windows complète sur Microsoft Azure en utilisant <strong style="color:var(--tf2)">Terraform (Infrastructure as Code)</strong>. L'objectif est de provisionner deux serveurs Windows Server 2022 (contrôleur de domaine et serveur applicatif) ainsi qu'un poste client Windows 11, reliés par un réseau virtuel Azure sécurisé par un NSG avec règles RDP et SSH.</p>
+  <div class="note naz"><i class="fas fa-info-circle"></i><span>Toute l'infrastructure est <strong>définie en code HCL</strong> (HashiCorp Configuration Language) et déployée en une seule commande <code style="font-family:var(--m);font-size:11px">terraform apply</code>. Elle est reproductible, versionnée sur Git et supprimable proprement avec <code style="font-family:var(--m);font-size:11px">terraform destroy</code>.</span></div>
+  <table class="nsg-table">
+    <thead><tr><th>Paramètre</th><th>Valeur</th></tr></thead>
+    <tbody>
+      <tr><td>Entreprise</td><td>Paradigm · Versailles, France</td></tr>
+      <tr><td>Superviseur</td><td>Yasser Salimi</td></tr>
+      <tr><td>Période</td><td>Janvier — Mars 2025</td></tr>
+      <tr><td>Région Azure</td><td>West Europe (westeurope)</td></tr>
+      <tr><td>Resource Group</td><td>rg-windows-infra</td></tr>
+      <tr><td>VNet</td><td>vnet-windows · 10.0.0.0/16</td></tr>
+      <tr><td>Provider Terraform</td><td>hashicorp/azurerm ~> 3.80</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ VMs WINDOWS ══ -->
+<div id="infra" class="slabel"><div class="sl-bar"></div><span class="sl-text">02 — Machines Virtuelles Windows</span><div class="sl-bar"></div></div>
+
+<div class="card card-win">
+  <div class="ch"><div class="cicon ci-win"><i class="fab fa-windows"></i></div><div><div class="ct">3 VMs — 2 Serveurs + 1 Client</div><div class="cs">Windows Server 2022 Datacenter · Windows 11 Pro · Standard_B2s</div></div></div>
+  <p class="d">L'infrastructure comprend trois machines virtuelles Windows : un contrôleur de domaine, un serveur applicatif, et un poste client pour les tests d'accès.</p>
+  <div class="vmg">
+    <div class="vmc">
+      <div class="vmc-icon">🖥️</div>
+      <div class="vmc-name">vm-win-dc</div>
+      <div class="vmc-os">Windows Server 2022 DC</div>
+      <div class="vmc-sku">Standard_B2s · 2 vCPU · 4 GB RAM</div>
+      <div class="vmc-ip">10.0.1.4 (privée)</div>
+    </div>
+    <div class="vmc">
+      <div class="vmc-icon">🖥️</div>
+      <div class="vmc-name">vm-win-app</div>
+      <div class="vmc-os">Windows Server 2022 DC</div>
+      <div class="vmc-sku">Standard_B2s · 2 vCPU · 4 GB RAM</div>
+      <div class="vmc-ip">10.0.1.5 (privée)</div>
+    </div>
+    <div class="vmc">
+      <div class="vmc-icon">💻</div>
+      <div class="vmc-name">vm-win-client</div>
+      <div class="vmc-os">Windows 11 Pro</div>
+      <div class="vmc-sku">Standard_B2s · 2 vCPU · 4 GB RAM</div>
+      <div class="vmc-ip">10.0.1.6 (privée)</div>
+    </div>
+  </div>
+  <div class="note nwin"><i class="fab fa-windows"></i><span>Image Azure utilisée : <strong>MicrosoftWindowsServer / WindowsServer / 2022-Datacenter</strong> pour les deux serveurs, et <strong>MicrosoftWindowsDesktop / Windows-11 / win11-22h2-pro</strong> pour le client. Accès administrateur via compte local <code style="font-family:var(--m);font-size:11px">adminparadigm</code>.</span></div>
+  <div class="pg">
+    <div class="pzone empty" data-key="vms-portal" id="pz-vms-portal">
+      <input type="file" accept="image/*" onchange="handleFile(this,'vms-portal')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="VMs Portal">
+      <div class="pzone-ph"><i class="fas fa-desktop"></i><p>CAPTURE — Azure Portal · Liste des 3 VMs</p><span>Cliquer pour ajouter · sauvegardée automatiquement</span></div>
+    </div>
+    <div class="pzone empty" data-key="vms-running" id="pz-vms-running">
+      <input type="file" accept="image/*" onchange="handleFile(this,'vms-running')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="VMs Running">
+      <div class="pzone-ph"><i class="fas fa-check-circle"></i><p>CAPTURE — VMs status Running</p><span>Les 3 VMs affichées en état Running</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESEAU ══ -->
+<div id="reseau" class="slabel"><div class="sl-bar"></div><span class="sl-text">03 — Réseau Virtuel Azure (VNet)</span><div class="sl-bar"></div></div>
+
+<div class="card card-az">
+  <div class="ch"><div class="cicon ci-az"><i class="fas fa-network-wired"></i></div><div><div class="ct">Virtual Network — vnet-windows</div><div class="cs">10.0.0.0/16 · 1 subnet applicatif · NSG associé</div></div></div>
+  <p class="d">Le réseau virtuel Azure connecte les trois VMs dans un espace d'adressage privé isolé. Un seul subnet héberge toutes les VMs. Le NSG contrôle les flux entrants et sortants.</p>
+
+  <div class="flow">
+    <div class="flow-row"><div class="flow-lbl">Internet</div><div class="flow-nodes"><div class="fnode">Administrateur</div><div class="farrow">→</div><div class="fnode az">IP Publiques (3 VMs)</div></div></div>
+    <div class="flow-row"><div class="flow-lbl">Sécurité</div><div class="flow-nodes"><div class="fnode red">NSG nsg-windows</div><div class="farrow">→</div><div class="fnode gr">RDP 3389 ✓</div><div class="fnode gr">SSH 22 ✓</div><div class="fnode red">Autres → Deny</div></div></div>
+    <div class="flow-row"><div class="flow-lbl">VNet</div><div class="flow-nodes"><div class="fnode az">vnet-windows · 10.0.0.0/16</div><div class="farrow">→</div><div class="fnode az">subnet-vms · 10.0.1.0/24</div></div></div>
+    <div class="flow-row"><div class="flow-lbl">VMs</div><div class="flow-nodes"><div class="fnode win">vm-win-dc · 10.0.1.4</div><div class="fnode win">vm-win-app · 10.0.1.5</div><div class="fnode win">vm-win-client · 10.0.1.6</div></div></div>
+  </div>
+
+  <div class="pg">
+    <div class="pzone empty" data-key="vnet-topology" id="pz-vnet-topology">
+      <input type="file" accept="image/*" onchange="handleFile(this,'vnet-topology')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="VNet Topology">
+      <div class="pzone-ph"><i class="fas fa-project-diagram"></i><p>CAPTURE — VNet Topology Azure</p><span>Vue topologie du réseau vnet-windows</span></div>
+    </div>
+    <div class="pzone empty" data-key="vnet-subnet" id="pz-vnet-subnet">
+      <input type="file" accept="image/*" onchange="handleFile(this,'vnet-subnet')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="Subnet">
+      <div class="pzone-ph"><i class="fas fa-layer-group"></i><p>CAPTURE — Subnet subnet-vms</p><span>Détails du sous-réseau 10.0.1.0/24</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NSG ══ -->
+<div id="nsg" class="slabel"><div class="sl-bar"></div><span class="sl-text">04 — NSG — Règles de sécurité RDP & SSH</span><div class="sl-bar"></div></div>
+
+<div class="card card-az">
+  <div class="ch"><div class="cicon ci-az"><i class="fas fa-shield-alt"></i></div><div><div class="ct">Network Security Group — nsg-windows</div><div class="cs">RDP port 3389 · SSH port 22 · Deny all par défaut</div></div></div>
+  <p class="d">Le NSG définit les règles de filtrage du trafic réseau. Deux règles inbound permettent l'accès à distance : <strong style="color:var(--az2)">RDP (3389)</strong> pour la connexion Bureau à distance Windows, et <strong style="color:var(--az2)">SSH (22)</strong> pour l'accès terminal sécurisé. Tout autre trafic entrant est bloqué par la règle implicite DenyAll.</p>
+
+  <div class="note nrd"><i class="fas fa-exclamation-triangle"></i><span><strong>Sécurité en production :</strong> Les règles RDP/SSH autorisent ici toutes les IPs sources (<code style="font-family:var(--m);font-size:11px">*</code>) pour l'environnement de lab. En production, il faudrait restreindre à une IP spécifique ou à un plage Paradigm.</span></div>
+
+  <table class="nsg-table">
+    <thead><tr><th>Priorité</th><th>Nom</th><th>Port</th><th>Protocole</th><th>Source</th><th>Direction</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>100</td><td>Allow-RDP</td><td><span class="bz b-az">3389</span></td><td>TCP</td><td>*</td><td>Inbound</td><td><span class="bz b-gr">Allow</span></td></tr>
+      <tr><td>110</td><td>Allow-SSH</td><td><span class="bz b-az">22</span></td><td>TCP</td><td>*</td><td>Inbound</td><td><span class="bz b-gr">Allow</span></td></tr>
+      <tr><td>200</td><td>Allow-WinRM</td><td><span class="bz b-win">5985-5986</span></td><td>TCP</td><td>VirtualNetwork</td><td>Inbound</td><td><span class="bz b-gr">Allow</span></td></tr>
+      <tr><td>65000</td><td>AllowVnetInBound</td><td>*</td><td>*</td><td>VirtualNetwork</td><td>Inbound</td><td><span class="bz b-gr">Allow</span></td></tr>
+      <tr><td>65500</td><td>DenyAllInBound</td><td>*</td><td>*</td><td>*</td><td>Inbound</td><td><span class="bz b-red">Deny</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="pg">
+    <div class="pzone empty" data-key="nsg-rules" id="pz-nsg-rules">
+      <input type="file" accept="image/*" onchange="handleFile(this,'nsg-rules')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="NSG Rules">
+      <div class="pzone-ph"><i class="fas fa-shield-alt"></i><p>CAPTURE — NSG · Règles Inbound</p><span>Règles RDP (3389) et SSH (22) dans le portail</span></div>
+    </div>
+    <div class="pzone empty" data-key="nsg-assoc" id="pz-nsg-assoc">
+      <input type="file" accept="image/*" onchange="handleFile(this,'nsg-assoc')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="NSG Association">
+      <div class="pzone-ph"><i class="fas fa-link"></i><p>CAPTURE — NSG associé au subnet</p><span>Association NSG ↔ subnet-vms dans le portail</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TERRAFORM CODE ══ -->
+<div id="terraform" class="slabel"><div class="sl-bar"></div><span class="sl-text">05 — Code Terraform</span><div class="sl-bar"></div></div>
+
+<div class="card card-tf">
+  <div class="ch"><div class="cicon ci-tf"><i class="fas fa-code"></i></div><div><div class="ct">providers.tf + variables.tf</div><div class="cs">hashicorp/azurerm ~> 3.80 · Configuration de base</div></div></div>
+  <div class="term t-tf">
+    <div class="tbar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="tlbl">providers.tf</span></div>
+    <pre><span class="ck2">terraform</span> {
+  <span class="ck2">required_version</span> = <span class="cv2">">= 1.5.0"</span>
+  <span class="ck2">required_providers</span> {
+    <span class="cv2">azurerm</span> = {
+      source  = <span class="cv2">"hashicorp/azurerm"</span>
+      version = <span class="cv2">"~> 3.80"</span>
+    }
+  }
+}
+
+<span class="ck2">provider</span> <span class="cv2">"azurerm"</span> {
+  <span class="ck2">features</span> {}
+  subscription_id = <span class="cv2">var.subscription_id</span>
+}</pre>
+  </div>
+  <div class="term t-tf">
+    <div class="tbar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="tlbl">variables.tf</span></div>
+    <pre><span class="ck2">variable</span> <span class="cv2">"subscription_id"</span> { type = <span class="cv2">string</span> }
+<span class="ck2">variable</span> <span class="cv2">"location"</span>        { default = <span class="cv2">"westeurope"</span> }
+<span class="ck2">variable</span> <span class="cv2">"rg_name"</span>         { default = <span class="cv2">"rg-windows-infra"</span> }
+<span class="ck2">variable</span> <span class="cv2">"admin_username"</span>  { default = <span class="cv2">"adminparadigm"</span> }
+<span class="ck2">variable</span> <span class="cv2">"admin_password"</span>  { type = <span class="cv2">string</span>; sensitive = <span class="cv2">true</span> }
+<span class="ck2">variable</span> <span class="cv2">"tags"</span> {
+  default = {
+    project    = <span class="cv2">"windows-infra"</span>
+    env        = <span class="cv2">"lab"</span>
+    managed_by = <span class="cv2">"terraform"</span>
+    stage      = <span class="cv2">"paradigm-2025"</span>
+  }
+}</pre>
+  </div>
+</div>
+
+<div class="card card-tf">
+  <div class="ch"><div class="cicon ci-tf"><i class="fas fa-network-wired"></i></div><div><div class="ct">main.tf — Réseau</div><div class="cs">Resource Group · VNet · Subnet · IP Publiques · NICs</div></div></div>
+  <div class="term t-tf">
+    <div class="tbar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="tlbl">main.tf — Resource Group + VNet + Subnet</span></div>
+    <pre><span class="cc"># ── Resource Group ───────────────────────────────────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_resource_group"</span> <span class="cv2">"main"</span> {
+  name     = <span class="cv2">var.rg_name</span>
+  location = <span class="cv2">var.location</span>
+  tags     = <span class="cv2">var.tags</span>
+}
+
+<span class="cc"># ── Virtual Network ──────────────────────────────────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_virtual_network"</span> <span class="cv2">"main"</span> {
+  name                = <span class="cv2">"vnet-windows"</span>
+  address_space       = [<span class="cv2">"10.0.0.0/16"</span>]
+  location            = <span class="cv2">azurerm_resource_group.main.location</span>
+  resource_group_name = <span class="cv2">azurerm_resource_group.main.name</span>
+  tags                = <span class="cv2">var.tags</span>
+}
+
+<span class="cc"># ── Subnet applicatif ────────────────────────────────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_subnet"</span> <span class="cv2">"vms"</span> {
+  name                 = <span class="cv2">"subnet-vms"</span>
+  resource_group_name  = <span class="cv2">azurerm_resource_group.main.name</span>
+  virtual_network_name = <span class="cv2">azurerm_virtual_network.main.name</span>
+  address_prefixes     = [<span class="cv2">"10.0.1.0/24"</span>]
+}
+
+<span class="cc"># ── IP Publiques (une par VM) ────────────────────────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_public_ip"</span> <span class="cv2">"dc"</span> {
+  name                = <span class="cv2">"pip-win-dc"</span>
+  location            = <span class="cv2">azurerm_resource_group.main.location</span>
+  resource_group_name = <span class="cv2">azurerm_resource_group.main.name</span>
+  allocation_method   = <span class="cv2">"Static"</span>
+  sku                 = <span class="cv2">"Standard"</span>
+  tags                = <span class="cv2">var.tags</span>
+}
+<span class="cc"># (idem pour pip-win-app et pip-win-client)</span>
+
+<span class="cc"># ── Network Interfaces ───────────────────────────────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_network_interface"</span> <span class="cv2">"dc"</span> {
+  name                = <span class="cv2">"nic-win-dc"</span>
+  location            = <span class="cv2">azurerm_resource_group.main.location</span>
+  resource_group_name = <span class="cv2">azurerm_resource_group.main.name</span>
+
+  ip_configuration {
+    name                          = <span class="cv2">"ipconfig-dc"</span>
+    subnet_id                     = <span class="cv2">azurerm_subnet.vms.id</span>
+    private_ip_address_allocation = <span class="cv2">"Static"</span>
+    private_ip_address            = <span class="cv2">"10.0.1.4"</span>
+    public_ip_address_id          = <span class="cv2">azurerm_public_ip.dc.id</span>
+  }
+  tags = <span class="cv2">var.tags</span>
+}
+<span class="cc"># (idem pour nic-win-app → 10.0.1.5 et nic-win-client → 10.0.1.6)</span></pre>
+  </div>
+</div>
+
+<div class="card card-tf">
+  <div class="ch"><div class="cicon ci-tf"><i class="fas fa-shield-alt"></i></div><div><div class="ct">main.tf — NSG + Règles RDP & SSH</div><div class="cs">Network Security Group avec 3 règles inbound</div></div></div>
+  <div class="term t-tf">
+    <div class="tbar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="tlbl">main.tf — NSG + association subnet</span></div>
+    <pre><span class="cc"># ── Network Security Group ───────────────────────────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_network_security_group"</span> <span class="cv2">"main"</span> {
+  name                = <span class="cv2">"nsg-windows"</span>
+  location            = <span class="cv2">azurerm_resource_group.main.location</span>
+  resource_group_name = <span class="cv2">azurerm_resource_group.main.name</span>
+
+  <span class="cc"># ── Règle RDP — Bureau à distance Windows ─────────────────</span>
+  security_rule {
+    name                       = <span class="cv2">"Allow-RDP"</span>
+    priority                   = 100
+    direction                  = <span class="cv2">"Inbound"</span>
+    access                     = <span class="cv2">"Allow"</span>
+    protocol                   = <span class="cv2">"Tcp"</span>
+    source_port_range          = <span class="cv2">"*"</span>
+    destination_port_range     = <span class="cv2">"3389"</span>
+    source_address_prefix      = <span class="cv2">"*"</span>
+    destination_address_prefix = <span class="cv2">"*"</span>
+    description                = <span class="cv2">"Acces Bureau a distance (RDP) vers les VMs Windows"</span>
+  }
+
+  <span class="cc"># ── Règle SSH — Terminal sécurisé ────────────────────────</span>
+  security_rule {
+    name                       = <span class="cv2">"Allow-SSH"</span>
+    priority                   = 110
+    direction                  = <span class="cv2">"Inbound"</span>
+    access                     = <span class="cv2">"Allow"</span>
+    protocol                   = <span class="cv2">"Tcp"</span>
+    source_port_range          = <span class="cv2">"*"</span>
+    destination_port_range     = <span class="cv2">"22"</span>
+    source_address_prefix      = <span class="cv2">"*"</span>
+    destination_address_prefix = <span class="cv2">"*"</span>
+    description                = <span class="cv2">"Acces SSH pour administration distante"</span>
+  }
+
+  <span class="cc"># ── WinRM — Gestion Windows distante ────────────────────</span>
+  security_rule {
+    name                       = <span class="cv2">"Allow-WinRM"</span>
+    priority                   = 200
+    direction                  = <span class="cv2">"Inbound"</span>
+    access                     = <span class="cv2">"Allow"</span>
+    protocol                   = <span class="cv2">"Tcp"</span>
+    source_port_range          = <span class="cv2">"*"</span>
+    destination_port_ranges    = [<span class="cv2">"5985"</span>, <span class="cv2">"5986"</span>]
+    source_address_prefix      = <span class="cv2">"VirtualNetwork"</span>
+    destination_address_prefix = <span class="cv2">"*"</span>
+    description                = <span class="cv2">"WinRM interne au VNet uniquement"</span>
+  }
+
+  tags = <span class="cv2">var.tags</span>
+}
+
+<span class="cc"># ── Association NSG ↔ Subnet ─────────────────────────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_subnet_network_security_group_association"</span> <span class="cv2">"main"</span> {
+  subnet_id                 = <span class="cv2">azurerm_subnet.vms.id</span>
+  network_security_group_id = <span class="cv2">azurerm_network_security_group.main.id</span>
+}</pre>
+  </div>
+
+  <div class="pzone empty" data-key="tf-nsg-code" id="pz-tf-nsg-code">
+    <input type="file" accept="image/*" onchange="handleFile(this,'tf-nsg-code')">
+    <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+    <span class="pzone-change">Cliquer pour changer</span>
+    <img class="pzone-img" alt="NSG Code">
+    <div class="pzone-ph"><i class="fas fa-code"></i><p>CAPTURE — Code NSG dans VS Code / éditeur</p><span>Fichier main.tf avec les règles NSG</span></div>
+  </div>
+</div>
+
+<div class="card card-tf">
+  <div class="ch"><div class="cicon ci-tf"><i class="fab fa-windows"></i></div><div><div class="ct">main.tf — VMs Windows</div><div class="cs">azurerm_windows_virtual_machine · 3 instances</div></div></div>
+  <div class="term t-tf">
+    <div class="tbar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="tlbl">main.tf — VM Windows Server 2022 (contrôleur de domaine)</span></div>
+    <pre><span class="cc"># ── VM Windows Server 2022 — Contrôleur de domaine ──────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_windows_virtual_machine"</span> <span class="cv2">"dc"</span> {
+  name                = <span class="cv2">"vm-win-dc"</span>
+  resource_group_name = <span class="cv2">azurerm_resource_group.main.name</span>
+  location            = <span class="cv2">azurerm_resource_group.main.location</span>
+  size                = <span class="cv2">"Standard_B2s"</span>
+  admin_username      = <span class="cv2">var.admin_username</span>
+  admin_password      = <span class="cv2">var.admin_password</span>
+  network_interface_ids = [<span class="cv2">azurerm_network_interface.dc.id</span>]
+
+  os_disk {
+    caching              = <span class="cv2">"ReadWrite"</span>
+    storage_account_type = <span class="cv2">"Standard_LRS"</span>
+    disk_size_gb         = 128
+  }
+
+  source_image_reference {
+    publisher = <span class="cv2">"MicrosoftWindowsServer"</span>
+    offer     = <span class="cv2">"WindowsServer"</span>
+    sku       = <span class="cv2">"2022-Datacenter"</span>
+    version   = <span class="cv2">"latest"</span>
+  }
+
+  enable_automatic_updates = <span class="cv2">true</span>
+  license_type             = <span class="cv2">"Windows_Server"</span>
+  tags                     = <span class="cv2">var.tags</span>
+}
+
+<span class="cc"># ── VM Windows Server 2022 — Serveur applicatif ──────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_windows_virtual_machine"</span> <span class="cv2">"app"</span> {
+  name                  = <span class="cv2">"vm-win-app"</span>
+  resource_group_name   = <span class="cv2">azurerm_resource_group.main.name</span>
+  location              = <span class="cv2">azurerm_resource_group.main.location</span>
+  size                  = <span class="cv2">"Standard_B2s"</span>
+  admin_username        = <span class="cv2">var.admin_username</span>
+  admin_password        = <span class="cv2">var.admin_password</span>
+  network_interface_ids = [<span class="cv2">azurerm_network_interface.app.id</span>]
+
+  os_disk {
+    caching              = <span class="cv2">"ReadWrite"</span>
+    storage_account_type = <span class="cv2">"Standard_LRS"</span>
+    disk_size_gb         = 128
+  }
+
+  source_image_reference {
+    publisher = <span class="cv2">"MicrosoftWindowsServer"</span>
+    offer     = <span class="cv2">"WindowsServer"</span>
+    sku       = <span class="cv2">"2022-Datacenter"</span>
+    version   = <span class="cv2">"latest"</span>
+  }
+  license_type = <span class="cv2">"Windows_Server"</span>
+  tags         = <span class="cv2">var.tags</span>
+}
+
+<span class="cc"># ── VM Windows 11 Pro — Poste client ────────────────────────</span>
+<span class="ck2">resource</span> <span class="cv2">"azurerm_windows_virtual_machine"</span> <span class="cv2">"client"</span> {
+  name                  = <span class="cv2">"vm-win-client"</span>
+  resource_group_name   = <span class="cv2">azurerm_resource_group.main.name</span>
+  location              = <span class="cv2">azurerm_resource_group.main.location</span>
+  size                  = <span class="cv2">"Standard_B2s"</span>
+  admin_username        = <span class="cv2">var.admin_username</span>
+  admin_password        = <span class="cv2">var.admin_password</span>
+  network_interface_ids = [<span class="cv2">azurerm_network_interface.client.id</span>]
+
+  os_disk {
+    caching              = <span class="cv2">"ReadWrite"</span>
+    storage_account_type = <span class="cv2">"Standard_LRS"</span>
+    disk_size_gb         = 128
+  }
+
+  source_image_reference {
+    publisher = <span class="cv2">"MicrosoftWindowsDesktop"</span>
+    offer     = <span class="cv2">"Windows-11"</span>
+    sku       = <span class="cv2">"win11-22h2-pro"</span>
+    version   = <span class="cv2">"latest"</span>
+  }
+  tags = <span class="cv2">var.tags</span>
+}
+
+<span class="cc"># ── outputs.tf ────────────────────────────────────────────────</span>
+<span class="ck2">output</span> <span class="cv2">"dc_public_ip"</span>     { value = <span class="cv2">azurerm_public_ip.dc.ip_address</span> }
+<span class="ck2">output</span> <span class="cv2">"app_public_ip"</span>    { value = <span class="cv2">azurerm_public_ip.app.ip_address</span> }
+<span class="ck2">output</span> <span class="cv2">"client_public_ip"</span> { value = <span class="cv2">azurerm_public_ip.client.ip_address</span> }</pre>
+  </div>
+
+  <div class="pg">
+    <div class="pzone empty" data-key="tf-vm-dc" id="pz-tf-vm-dc">
+      <input type="file" accept="image/*" onchange="handleFile(this,'tf-vm-dc')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="VM DC code">
+      <div class="pzone-ph"><i class="fas fa-file-code"></i><p>CAPTURE — Code VM Windows Server (DC)</p><span>Ressource azurerm_windows_virtual_machine dc</span></div>
+    </div>
+    <div class="pzone empty" data-key="tf-vm-client" id="pz-tf-vm-client">
+      <input type="file" accept="image/*" onchange="handleFile(this,'tf-vm-client')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="VM Client code">
+      <div class="pzone-ph"><i class="fas fa-file-code"></i><p>CAPTURE — Code VM Windows 11 (client)</p><span>Ressource azurerm_windows_virtual_machine client</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DEPLOIEMENT ══ -->
+<div id="deploy" class="slabel"><div class="sl-bar"></div><span class="sl-text">06 — Déploiement Terraform</span><div class="sl-bar"></div></div>
+
+<div class="card card-tf">
+  <div class="ch"><div class="cicon ci-tf"><i class="fas fa-rocket"></i></div><div><div class="ct">Workflow de déploiement</div><div class="cs">init → plan → apply → verify → destroy</div></div></div>
+  <div class="term t-tf">
+    <div class="tbar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="tlbl">Terminal — Déploiement complet</span></div>
+    <pre><span class="cc"># ── 1. Connexion Azure ───────────────────────────────────────</span>
+<span class="cp2">$</span> <span class="ck2">az login</span>
+<span class="cc"># Si MFA bloqué : az login --use-device-code</span>
+
+<span class="cc"># ── 2. Définir les variables sensibles ───────────────────────</span>
+<span class="cp2">$</span> <span class="ck2">export</span> <span class="cv2">TF_VAR_subscription_id</span>=<span class="cv2">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span>
+<span class="cp2">$</span> <span class="ck2">export</span> <span class="cv2">TF_VAR_admin_password</span>=<span class="cv2">"P@radigm2025!"</span>
+
+<span class="cc"># ── 3. Initialisation des providers ──────────────────────────</span>
+<span class="cp2">$</span> <span class="ck2">terraform init</span>
+<span class="cv2">Terraform has been successfully initialized!</span>
+
+<span class="cc"># ── 4. Plan — Aperçu des ressources à créer ──────────────────</span>
+<span class="cp2">$</span> <span class="ck2">terraform plan</span>
+<span class="cv2">Plan: 15 to add, 0 to change, 0 to destroy.</span>
+<span class="cc"># RG + VNet + Subnet + 3 PIPs + 3 NICs + NSG + NSG assoc + 3 VMs</span>
+
+<span class="cc"># ── 5. Déploiement effectif ───────────────────────────────────</span>
+<span class="cp2">$</span> <span class="ck2">terraform apply -auto-approve</span>
+<span class="cv2">azurerm_resource_group.main: Creating...</span>
+<span class="cv2">azurerm_virtual_network.main: Creating...</span>
+<span class="cv2">azurerm_network_security_group.main: Creating...</span>
+<span class="cv2">azurerm_windows_virtual_machine.dc: Creating...  [~8 min]</span>
+<span class="cv2">azurerm_windows_virtual_machine.app: Creating... [~8 min]</span>
+<span class="cv2">azurerm_windows_virtual_machine.client: Creating... [~8 min]</span>
+<span class="cv2">Apply complete! Resources: 15 added, 0 changed, 0 destroyed.</span>
+
+<span class="cv2">Outputs:</span>
+<span class="cv2">dc_public_ip     = "52.174.x.x"</span>
+<span class="cv2">app_public_ip    = "52.174.x.y"</span>
+<span class="cv2">client_public_ip = "52.174.x.z"</span></pre>
+  </div>
+
+  <div class="pg">
+    <div class="pzone empty" data-key="tf-init" id="pz-tf-init">
+      <input type="file" accept="image/*" onchange="handleFile(this,'tf-init')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="terraform init">
+      <div class="pzone-ph"><i class="fas fa-download"></i><p>CAPTURE — terraform init</p><span>Initialisation réussie des providers</span></div>
+    </div>
+    <div class="pzone empty" data-key="tf-plan-output" id="pz-tf-plan-output">
+      <input type="file" accept="image/*" onchange="handleFile(this,'tf-plan-output')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="terraform plan">
+      <div class="pzone-ph"><i class="fas fa-clipboard-list"></i><p>CAPTURE — terraform plan</p><span>Plan: 15 to add — aperçu des ressources</span></div>
+    </div>
+  </div>
+  <div class="pzone empty" data-key="tf-apply-output" id="pz-tf-apply-output">
+    <input type="file" accept="image/*" onchange="handleFile(this,'tf-apply-output')">
+    <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+    <span class="pzone-change">Cliquer pour changer</span>
+    <img class="pzone-img" alt="terraform apply">
+    <div class="pzone-ph"><i class="fas fa-rocket"></i><p>CAPTURE — terraform apply · Apply complete!</p><span>Resources: 15 added — outputs avec IPs publiques</span></div>
+  </div>
+</div>
+
+<!-- ══ TESTS ══ -->
+<div id="tests" class="slabel"><div class="sl-bar"></div><span class="sl-text">07 — Tests & Validation</span><div class="sl-bar"></div></div>
+
+<div class="card card-green">
+  <div class="ch"><div class="cicon ci-gr"><i class="fas fa-check-circle"></i></div><div><div class="ct">Validation de l'infrastructure</div><div class="cs">Connexion RDP · SSH · Ping inter-VM · NSG effectif</div></div></div>
+
+  <div class="steps">
+    <div class="step"><div class="stepn saz">1</div><div><div class="stept">Vérification Azure Portal → Resource Group</div><div class="stepd">Navigation dans rg-windows-infra → 15 ressources créées. Les 3 VMs affichées en statut <strong>Running</strong>. NSG associé au subnet visible dans les détails.</div></div></div>
+    <div class="step"><div class="stepn saz">2</div><div><div class="stept">Connexion RDP → vm-win-dc (Windows Server)</div><div class="stepd"><code style="font-family:var(--m);font-size:10px">mstsc /v:&lt;dc_public_ip&gt;:3389</code> → Connexion Bureau à distance établie avec adminparadigm. Windows Server 2022 accessible.</div></div></div>
+    <div class="step"><div class="stepn saz">3</div><div><div class="stept">Connexion RDP → vm-win-app et vm-win-client</div><div class="stepd">Même procédure avec les IPs publiques des outputs Terraform. Les 3 VMs accessibles en RDP via les règles NSG Allow-RDP.</div></div></div>
+    <div class="step"><div class="stepn stf">4</div><div><div class="stept">Test SSH → vm-win-dc (OpenSSH Server)</div><div class="stepd"><code style="font-family:var(--m);font-size:10px">ssh adminparadigm@&lt;dc_public_ip&gt;</code> → Connexion SSH réussie (OpenSSH Server préinstallé sur WinServer 2022). Règle Allow-SSH validée.</div></div></div>
+    <div class="step"><div class="stepn stf">5</div><div><div class="stept">Ping inter-VMs (VNet interne)</div><div class="stepd">Depuis vm-win-dc : <code style="font-family:var(--m);font-size:10px">ping 10.0.1.5</code> (vm-win-app) → Réponse reçue. Les 3 VMs communiquent via le subnet 10.0.1.0/24.</div></div></div>
+    <div class="step"><div class="stepn sgr">6</div><div><div class="stept">Vérification NSG — Règle DenyAll</div><div class="stepd">Test d'un port non autorisé (ex: 8080) depuis l'extérieur → Connexion refusée (timeout). Le NSG bloque correctement tout trafic non explicitement autorisé.</div></div></div>
+  </div>
+
+  <div class="pg">
+    <div class="pzone empty" data-key="test-rdp" id="pz-test-rdp">
+      <input type="file" accept="image/*" onchange="handleFile(this,'test-rdp')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="Test RDP">
+      <div class="pzone-ph"><i class="fas fa-desktop"></i><p>CAPTURE — Connexion RDP vm-win-dc</p><span>Bureau Windows Server 2022 via mstsc</span></div>
+    </div>
+    <div class="pzone empty" data-key="test-ssh" id="pz-test-ssh">
+      <input type="file" accept="image/*" onchange="handleFile(this,'test-ssh')">
+      <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+      <span class="pzone-change">Cliquer pour changer</span>
+      <img class="pzone-img" alt="Test SSH">
+      <div class="pzone-ph"><i class="fas fa-terminal"></i><p>CAPTURE — Connexion SSH vm-win-dc</p><span>ssh adminparadigm@&lt;IP&gt; → connecté</span></div>
+    </div>
+  </div>
+  <div class="pzone empty" data-key="test-ping" id="pz-test-ping">
+    <input type="file" accept="image/*" onchange="handleFile(this,'test-ping')">
+    <span class="pzone-badge">✓ SAUVEGARDÉE</span>
+    <span class="pzone-change">Cliquer pour changer</span>
+    <img class="pzone-img" alt="Test Ping">
+    <div class="pzone-ph"><i class="fas fa-exchange-alt"></i><p>CAPTURE — Ping inter-VMs 10.0.1.4 → 10.0.1.5</p><span>Communication interne via subnet-vms validée</span></div>
+  </div>
+</div>
+
+<!-- ══ COMPÉTENCES ══ -->
+<div id="competences" class="slabel"><div class="sl-bar"></div><span class="sl-text">08 — Compétences BTS SIO mobilisées</span><div class="sl-bar"></div></div>
+
+<div class="compg">
+  <div class="compc"><div class="compb b1c">B2 — Exploitation</div><div class="compt">Exploiter des serveurs Cloud</div><div class="compd">Déploiement de 3 VMs Windows (Server 2022 + Win11) sur Azure via Terraform.</div></div>
+  <div class="compc"><div class="compb b1c">B2 — Exploitation</div><div class="compt">Gérer des réseaux Cloud</div><div class="compd">VNet 10.0.0.0/16, subnet-vms 10.0.1.0/24, IPs statiques privées, IPs publiques statiques.</div></div>
+  <div class="compc"><div class="compb b2c">B2 — Exploitation</div><div class="compt">Automatiser — IaC</div><div class="compd">Infrastructure entièrement définie en HCL Terraform et déployée en une commande.</div></div>
+  <div class="compc"><div class="compb b2c">B3 — Cybersécurité</div><div class="compt">Sécuriser les accès</div><div class="compd">NSG avec règles RDP (3389) et SSH (22) — DenyAll implicite sur tout autre port.</div></div>
+  <div class="compc"><div class="compb b3c">B3 — Cybersécurité</div><div class="compt">Administrer à distance</div><div class="compd">Accès RDP (Bureau à distance) et SSH (OpenSSH Windows) validés sur les 3 VMs.</div></div>
+  <div class="compc"><div class="compb b3c">Transversal</div><div class="compt">Versionnage & documentation</div><div class="compd">Fichiers Terraform versionnés sur Git, variables sensibles exclues (.gitignore).</div></div>
+</div>
+
+<div class="cta">
+  <div class="cta-title">Compte rendu complet</div>
+  <p class="cta-sub">Documentation Terraform — Infrastructure Windows Azure — Stage Paradigm 2025</p>
+  <a href="Cyrene_Windows_CompteRendu_Miguel_Etienne.pdf" class="cta-btn"><i class="fas fa-file-pdf"></i>&nbsp; Télécharger le compte rendu PDF</a>
+</div>
+
+</div><!-- /content -->
+</div><!-- /page -->
+
+<footer>Miguel Etienne &nbsp;·&nbsp; Stage Paradigm Versailles &nbsp;·&nbsp; BTS SIO SISR &nbsp;·&nbsp; 2025</footer>
+
+<script>
+// ══ IndexedDB — Persistance photos ══════════════════════════════
+const DB_NAME = 'windows_infra_photos';
+const DB_VER  = 1;
+const STORE   = 'photos';
+let db = null;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(STORE);
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror   = e => rej(e);
+  });
+}
+
+function dbSet(key, val) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const req = tx.objectStore(STORE).put(val, key);
+    req.onsuccess = () => res();
+    req.onerror   = e => rej(e);
+  });
+}
+
+function dbGet(key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).get(key);
+    req.onsuccess = e => res(e.target.result || null);
+    req.onerror   = e => rej(e);
+  });
+}
+
+// ── Afficher une photo dans sa zone ─────────────────────────────
+function showPhoto(zone, src) {
+  const img    = zone.querySelector('.pzone-img');
+  const ph     = zone.querySelector('.pzone-ph');
+  const badge  = zone.querySelector('.pzone-badge');
+  const change = zone.querySelector('.pzone-change');
+
+  img.src = src;
+  img.style.display = 'block';
+  ph.style.display  = 'none';
+  badge.style.display  = 'block';
+  change.style.display = 'block';
+
+  zone.classList.remove('empty');
+  zone.classList.add('filled');
+  zone.style.borderColor = 'rgba(0,229,160,0.4)';
+  zone.style.background  = 'rgba(0,229,160,0.03)';
+}
+
+// ── Gérer l'upload d'une image ───────────────────────────────────
+function handleFile(input, key) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const src = e.target.result;
+    try { await dbSet(key, src); } catch(err) { console.warn('IndexedDB save error:', err); }
+    showPhoto(input.closest('.pzone'), src);
+    // Reset l'input pour permettre de re-sélectionner le même fichier
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Charger toutes les photos au démarrage ───────────────────────
+async function loadAllPhotos() {
+  try {
+    await openDB();
+  } catch(e) {
+    console.warn('IndexedDB unavailable:', e);
+    return;
+  }
+
+  const zones = document.querySelectorAll('.pzone[data-key]');
+  for (const zone of zones) {
+    const key = zone.dataset.key;
+    try {
+      const src = await dbGet(key);
+      if (src) showPhoto(zone, src);
+    } catch(e) {
+      // Clé absente ou erreur silencieuse
+    }
+  }
+}
+
+// ── Smooth scroll navigation ─────────────────────────────────────
+document.querySelectorAll('.sidenav a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    const href = this.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      e.preventDefault();
+      const el = document.querySelector(href);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    }
+  });
+});
+
+// ── Lancement ────────────────────────────────────────────────────
+loadAllPhotos();
+</script>
+</body>
+</html>

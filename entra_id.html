@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Entra ID | Miguel Etienne</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .command-block { background-color: #0f172a; color: #818cf8; font-family: 'Fira Code', monospace; padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #6366f1; margin: 1rem 0; overflow-x: auto; font-size: 0.85rem; }
+        .file-link { display: inline-flex; align-items: center; background-color: #eef2ff; color: #3730a3; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.8rem; border: 1px solid #e0e7ff; text-transform: uppercase; }
+        .file-link:hover { background-color: #6366f1; color: white; transform: scale(1.02); }
+        section { margin-bottom: 3rem; background: white; padding: 2.5rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; }
+        .img-placeholder { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 1rem; height: 300px; display: flex; align-items: center; justify-content: center; color: #94a3b8; margin: 1.5rem 0; font-style: italic; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 leading-relaxed">
+
+    <nav class="bg-[#041029] text-white p-5 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <a href="projets.html" class="text-indigo-400 font-bold"><i class="fas fa-arrow-left mr-2"></i> Retour</a>
+            <span class="text-sm font-bold uppercase text-slate-400">Identity Management (IAM)</span>
+        </div>
+    </nav>
+
+    <header class="max-w-5xl mx-auto py-12 px-6">
+        <h1 class="text-4xl font-black text-[#041029] mb-4">Gestion des identités : Microsoft Entra ID</h1>
+        <p class="text-gray-600">Automatisation de l'onboarding utilisateur et des groupes de sécurité via Terraform.</p>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 pb-20">
+
+        <section>
+            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-black">ETAPE 1</span>
+            <h2 class="text-2xl font-bold mt-2">Connexion à l'Active Directory Azure</h2>
+            <p class="text-gray-600 mb-4 text-sm">Configuration du provider <code>azuread</code> pour intéragir avec l'annuaire de TiersLieux86.</p>
+            <div class="command-block">
+                terraform {<br>
+                &nbsp;&nbsp;required_providers {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;azuread = { source = "hashicorp/azuread" }<br>
+                &nbsp;&nbsp;}<br>
+                }
+            </div>
+            <div class="img-placeholder">[ICI : Capture de ton code VS Code ou de l'authentification az login]</div>
+        </section>
+
+        <section>
+            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-black">ETAPE 2</span>
+            <h2 class="text-2xl font-bold mt-2">Provisionnement des comptes</h2>
+            <p class="text-gray-600 mb-4 text-sm">Création standardisée des comptes collaborateurs avec génération de mot de passe temporaire.</p>
+            <div class="command-block">
+                resource "azuread_user" "user" {<br>
+                &nbsp;&nbsp;user_principal_name = "j.dupont@tierslieux86.fr"<br>
+                &nbsp;&nbsp;display_name        = "Jean Dupont"<br>
+                &nbsp;&nbsp;password            = "InitialPassword123!"<br>
+                }
+            </div>
+            <div class="img-placeholder">[ICI : Capture de la liste des utilisateurs dans Entra ID]</div>
+        </section>
+
+        <section>
+            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-black">ETAPE 3</span>
+            <h2 class="text-2xl font-bold mt-2">Groupes de Sécurité & Rôles</h2>
+            <p class="text-gray-600 mb-4 text-sm">Assignation automatique des utilisateurs à des groupes pour la gestion des droits (RBAC).</p>
+            <div class="command-block">
+                resource "azuread_group" "it_staff" {<br>
+                &nbsp;&nbsp;display_name     = "Equipe IT"<br>
+                &nbsp;&nbsp;security_enabled = true<br>
+                }
+            </div>
+            <a href="doc_azure_entra.pdf" target="_blank" class="file-link"><i class="fas fa-file-pdf mr-2"></i> Voir le dossier technique IAM</a>
+        </section>
+
+    </main>
+</body>
+</html>

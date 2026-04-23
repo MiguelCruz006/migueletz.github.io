@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvolInfra — TiersLieux86 | Miguel Etienne</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Bebas+Neue&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg:#f5f4ef;--bg2:#eceae3;--ink:#0f0e0b;--ink2:#2a2925;
+            --muted:#7a7870;--accent:#d4420a;--accent2:#e85a20;
+            --green:#1a6641;--border:#d0cec6;--card:#ffffff;
+            --mono:'JetBrains Mono',monospace;
+            --display:'Bebas Neue',sans-serif;
+            --body:'Barlow',sans-serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7}
+        nav{position:sticky;top:0;z-index:100;background:var(--ink);height:52px;display:flex;align-items:center;padding:0 2rem;justify-content:space-between;border-bottom:2px solid var(--accent)}
+        .nav-back{display:flex;align-items:center;gap:8px;color:#aaa;text-decoration:none;font-family:var(--mono);font-size:11px;letter-spacing:.08em;transition:color .2s}
+        .nav-back:hover{color:var(--accent2)}
+        .nav-center{font-family:var(--mono);font-size:10px;color:#555;letter-spacing:.25em;text-transform:uppercase}
+        .nav-logo{font-family:var(--display);font-size:20px;color:white;text-decoration:none}
+        .nav-logo span{color:var(--accent)}
+        .hero{background:var(--ink);color:white;overflow:hidden}
+        .hero-inner{max-width:1100px;margin:0 auto;padding:5rem 2rem 4rem;display:grid;grid-template-columns:1fr 300px;gap:4rem;align-items:end}
+        .hero-tag{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:10px}
+        .hero-tag::before{content:'';display:block;width:30px;height:1px;background:var(--accent)}
+        h1{font-family:var(--display);font-size:clamp(5rem,12vw,9rem);line-height:.92;letter-spacing:.02em;text-transform:uppercase;color:white;margin-bottom:2rem}
+        h1 em{font-style:normal;color:var(--accent);display:block}
+        .hero-desc{font-size:16px;color:#9a9890;font-weight:300;max-width:520px;line-height:1.8}
+        .hero-stats{display:flex;flex-direction:column;gap:1px;border:1px solid #2a2925;border-radius:4px;overflow:hidden;align-self:center}
+        .stat-row{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#1a1915;border-bottom:1px solid #2a2925}
+        .stat-row:last-child{border-bottom:none}
+        .stat-label{font-family:var(--mono);font-size:9px;color:#555;letter-spacing:.15em;text-transform:uppercase}
+        .stat-val{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:700}
+        .index-bar{background:var(--ink2);overflow-x:auto;border-bottom:1px solid #3a3830}
+        .index-inner{max-width:1100px;margin:0 auto;padding:0 2rem;display:flex}
+        .index-link{font-family:var(--mono);font-size:9px;color:#666;letter-spacing:.15em;text-transform:uppercase;padding:14px 18px;text-decoration:none;border-right:1px solid #3a3830;white-space:nowrap;transition:color .2s,background .2s}
+        .index-link:first-child{border-left:1px solid #3a3830}
+        .index-link:hover{color:white;background:rgba(212,66,10,.1)}
+        main{max-width:1100px;margin:0 auto;padding:4rem 2rem 6rem}
+        .mission{display:grid;grid-template-columns:80px 1fr;margin-bottom:4rem;border:1px solid var(--border);border-radius:2px;background:var(--card);overflow:hidden}
+        .mission-sidebar{background:var(--ink);display:flex;flex-direction:column;align-items:center;padding:2rem 0;gap:1rem}
+        .mission-num{font-family:var(--display);font-size:3.5rem;color:var(--accent);line-height:1;writing-mode:vertical-rl;transform:rotate(180deg)}
+        .mission-tag-side{font-family:var(--mono);font-size:8px;color:#555;letter-spacing:.2em;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)}
+        .mission-body{padding:2rem 2.5rem}
+        .mission-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--bg2)}
+        .mission-title{font-family:var(--display);font-size:2.2rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);line-height:1.1}
+        .mission-subtitle{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:4px}
+        .status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:2px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;flex-shrink:0}
+        .status-ok{background:#d4edda;color:var(--green);border:1px solid #a8d5b5}
+        .status-ok::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%}
+        .mission-desc{color:var(--muted);font-size:14px;margin-bottom:1.5rem;max-width:700px}
+        .points{display:flex;flex-direction:column;gap:6px;margin-bottom:1.5rem}
+        .point{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink2)}
+        .point::before{content:'→';color:var(--accent);font-family:var(--mono);font-size:12px;flex-shrink:0;margin-top:2px}
+        .code-wrap{background:#0f0e0b;border-radius:2px;margin-bottom:1.5rem;overflow:hidden;border:1px solid #2a2925}
+        .code-bar{background:#1a1915;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a2925}
+        .code-bar-left{display:flex;align-items:center;gap:8px}
+        .code-dot{width:8px;height:8px;border-radius:50%}
+        .cd1{background:#f87171}.cd2{background:#fbbf24}.cd3{background:#22d3a0}
+        .code-filename{font-family:var(--mono);font-size:9px;color:#555;letter-spacing:.1em}
+        .code-lang{font-family:var(--mono);font-size:9px;color:#3a3830;letter-spacing:.1em;text-transform:uppercase}
+        .code-wrap pre{padding:18px 20px;font-family:var(--mono);font-size:12px;line-height:1.9;color:#c9c5bb;overflow-x:auto;white-space:pre}
+        .c-k{color:#d4420a}.c-v{color:#22c987}.c-s{color:#f59e0b}.c-c{color:#4a4840}.c-p{color:#7dd3fc}.c-n{color:#c9c5bb}
+        .photo-row{display:grid;gap:12px;margin-bottom:1rem}
+        .photo-row.cols-2{grid-template-columns:1fr 1fr}
+        .photo-row.cols-1{grid-template-columns:1fr}
+        .photo-zone{border:1px dashed var(--border);border-radius:2px;background:var(--bg2);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden}
+        .photo-zone:hover{border-color:var(--accent);background:#fdf0eb}
+        .photo-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+        .photo-zone img{max-width:100%;max-height:380px;display:none;border-radius:2px}
+        .photo-ph i{font-size:1.8rem;color:var(--border);margin-bottom:8px;display:block}
+        .photo-ph p{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+        .photo-ph span{display:block;font-size:10px;color:#c0bdb5;margin-top:3px}
+        .mission-sep{display:flex;align-items:center;gap:16px;margin-bottom:2rem}
+        .mission-sep-line{flex:1;height:1px;background:var(--border)}
+        .mission-sep-txt{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
+        .dl-link{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:white;text-decoration:none;padding:8px 18px;border-radius:2px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;transition:background .2s;margin-top:.5rem}
+        .dl-link:hover{background:var(--accent)}
+        .cta-final{background:var(--ink);border-radius:2px;padding:3rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;border-top:3px solid var(--accent);margin-top:2rem}
+        .cta-tag{font-family:var(--mono);font-size:9px;color:#555;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}
+        .cta-title{font-family:var(--display);font-size:2rem;color:white;letter-spacing:.05em;text-transform:uppercase;line-height:1}
+        .cta-sub{font-size:13px;color:#666;margin-top:6px}
+        footer{background:var(--ink);color:#444;padding:2.5rem 2rem;display:flex;align-items:center;justify-content:space-between;border-top:2px solid var(--accent)}
+        .footer-txt{font-family:var(--mono);font-size:9px;letter-spacing:.25em;text-transform:uppercase}
+        .footer-logo{font-family:var(--display);font-size:22px;color:#333}
+        .footer-logo span{color:var(--accent)}
+        @media(max-width:768px){
+            .hero-inner{grid-template-columns:1fr;gap:2rem}
+            .hero-stats{display:none}
+            .mission{grid-template-columns:1fr}
+            .mission-sidebar{flex-direction:row;padding:1rem 1.5rem}
+            .mission-num{writing-mode:initial;transform:none;font-size:2rem}
+            .mission-tag-side{writing-mode:initial;transform:none}
+            .photo-row.cols-2{grid-template-columns:1fr}
+            .mission-header{flex-direction:column}
+            footer{flex-direction:column;gap:1rem;text-align:center}
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="projets.html" class="nav-back"><i class="fas fa-arrow-left"></i> Retour</a>
+    <span class="nav-center">Documentation E6 — EvolInfra</span>
+    <a href="index.html" class="nav-logo">Miguel<span>.SIO</span></a>
+</nav>
+
+<div class="hero">
+    <div class="hero-inner">
+        <div>
+            <div class="hero-tag">BTS SIO SISR — Atelier de professionnalisation</div>
+            <h1>Evol<em>Infra</em></h1>
+            <p class="hero-desc">Évolution de l'infrastructure réseau de TiersLieux86 : segmentation VLAN, haute disponibilité L2/L3, centralisation des logs et sauvegarde TFTP sur 8 missions progressives.</p>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-row"><span class="stat-label">Client fictif</span><span class="stat-val">TiersLieux86</span></div>
+            <div class="stat-row"><span class="stat-label">Outil</span><span class="stat-val">Cisco Packet Tracer</span></div>
+            <div class="stat-row"><span class="stat-label">Missions</span><span class="stat-val">08 / 08</span></div>
+            <div class="stat-row"><span class="stat-label">Protocoles</span><span class="stat-val">VTP · STP · HSRP</span></div>
+            <div class="stat-row"><span class="stat-label">Année</span><span class="stat-val">2025 — 2026</span></div>
+            <div class="stat-row"><span class="stat-label">Blocs</span><span class="stat-val">B1 · B2 · B3</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="index-bar">
+    <div class="index-inner">
+        <a href="#m1" class="index-link">M1 — Config &amp; NTP</a>
+        <a href="#m2" class="index-link">M2 — TFTP</a>
+        <a href="#m3" class="index-link">M3 — VLANs &amp; VTP</a>
+        <a href="#m4" class="index-link">M4 — Syslog</a>
+        <a href="#m5" class="index-link">M5 — Tolérance pannes</a>
+        <a href="#m6" class="index-link">M6 — EtherChannel</a>
+        <a href="#m7" class="index-link">M7 — RSTP</a>
+        <a href="#m8" class="index-link">M8 — HSRP</a>
+    </div>
+</div>
+
+<main>
+
+<!-- M1 -->
+<div id="m1" class="mission">
+    <div class="mission-sidebar"><span class="mission-num">01</span><span class="mission-tag-side">Config · NTP</span></div>
+    <div class="mission-body">
+        <div class="mission-header">
+            <div><div class="mission-title">Configuration basique &amp; NTP</div><div class="mission-subtitle">Sécurisation des accès et synchronisation temporelle</div></div>
+            <span class="status-badge status-ok">Complété</span>
+        </div>
+        <p class="mission-desc">Homogénéisation de la sécurité sur l'ensemble des équipements actifs et mise en place de la synchronisation NTP depuis SrvIntraDHCP.</p>
+        <div class="points">
+            <div class="point">Sécurisation SSHv2 avec clé RSA 2048 bits sur routeurs et switches.</div>
+            <div class="point">Chiffrement des mots de passe avec <code>service password-encryption</code>.</div>
+            <div class="point">Bannière légale MOTD personnalisée sur tous les équipements.</div>
+            <div class="point">Synchronisation NTP sur SrvIntraDHCP (192.168.2.100).</div>
+        </div>
+        <div class="code-wrap">
+            <div class="code-bar"><div class="code-bar-left"><div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div><span class="code-filename">RoutChass — configuration globale</span></div><span class="code-lang">IOS</span></div>
+            <pre><span class="c-c">! Identité et sécurité de base</span>
+<span class="c-p">Router(config)#</span> <span class="c-k">hostname</span> <span class="c-v">RoutChass</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">enable secret</span> <span class="c-s">ENP@ssw0rd</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">service password-encryption</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">banner motd</span> <span class="c-s">#Acces reserve au personnel autorise#</span>
+
+<span class="c-c">! SSH v2</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">ip domain-name</span> <span class="c-v">tierslieux86.fr</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">crypto key generate rsa modulus</span> <span class="c-v">2048</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">ip ssh version</span> <span class="c-v">2</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">line vty</span> 0 4
+<span class="c-p">RoutChass(config-line)#</span> <span class="c-k">transport input</span> <span class="c-v">ssh</span>
+<span class="c-p">RoutChass(config-line)#</span> <span class="c-k">login local</span>
+
+<span class="c-c">! Synchronisation NTP</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">ntp server</span> <span class="c-v">192.168.2.100</span>
+<span class="c-p">RoutChass#</span> <span class="c-k">show ntp status</span></pre>
+        </div>
+        <div class="photo-row cols-2">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-terminal"></i><p>CAPTURE — show ntp status</p><span>Vérification synchronisation NTP</span></div><img alt="NTP status"></div>
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-lock"></i><p>CAPTURE — Connexion SSH réussie</p><span>Test SSH depuis PC client</span></div><img alt="SSH connexion"></div>
+        </div>
+        <a href="mission1_config_ntp.docx" class="dl-link"><i class="fas fa-file-word"></i> Document Mission 1</a>
+    </div>
+</div>
+
+<div class="mission-sep"><div class="mission-sep-line"></div><span class="mission-sep-txt">Mission suivante</span><div class="mission-sep-line"></div></div>
+
+<!-- M2 -->
+<div id="m2" class="mission">
+    <div class="mission-sidebar"><span class="mission-num">02</span><span class="mission-tag-side">Backup · TFTP</span></div>
+    <div class="mission-body">
+        <div class="mission-header">
+            <div><div class="mission-title">Sauvegarde &amp; Restauration TFTP</div><div class="mission-subtitle">Sécurisation des configurations et des IOS</div></div>
+            <span class="status-badge status-ok">Complété</span>
+        </div>
+        <p class="mission-desc">Mise en sécurité des configurations courantes et IOS via un serveur TFTP centralisé. Procédures de password recovery documentées.</p>
+        <div class="points">
+            <div class="point">Sauvegarde des running-config vers SrvIntraDHCP (192.168.2.100) via TFTP.</div>
+            <div class="point">Procédure de Password Recovery sur routeur Cisco (mode ROMMON).</div>
+            <div class="point">Mise à jour de l'IOS via transfert TFTP.</div>
+            <div class="point">Restauration d'une configuration depuis le serveur TFTP.</div>
+        </div>
+        <div class="code-wrap">
+            <div class="code-bar"><div class="code-bar-left"><div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div><span class="code-filename">Sauvegarde et restauration TFTP</span></div><span class="code-lang">IOS</span></div>
+            <pre><span class="c-c">! Sauvegarde de la configuration courante</span>
+<span class="c-p">RoutChass#</span> <span class="c-k">copy running-config tftp</span>
+<span class="c-n">Address or name of remote host []?</span> <span class="c-v">192.168.2.100</span>
+<span class="c-n">Destination filename []?</span> <span class="c-s">RoutChass-cfg</span>
+
+<span class="c-c">! Restauration depuis TFTP</span>
+<span class="c-p">RoutChass#</span> <span class="c-k">copy tftp running-config</span>
+<span class="c-n">Source filename []?</span> <span class="c-s">RoutChass-cfg</span>
+
+<span class="c-c">! Vérification</span>
+<span class="c-p">RoutChass#</span> <span class="c-k">show flash</span>
+<span class="c-p">RoutChass#</span> <span class="c-k">show running-config</span></pre>
+        </div>
+        <div class="photo-row cols-2">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-cloud-upload-alt"></i><p>CAPTURE — Sauvegarde TFTP réussie</p><span>Confirmation transfert config vers serveur</span></div><img alt="Sauvegarde TFTP"></div>
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-undo"></i><p>CAPTURE — Restauration TFTP</p><span>Chargement config depuis le serveur</span></div><img alt="Restauration TFTP"></div>
+        </div>
+        <a href="mission2_tftp.docx" class="dl-link"><i class="fas fa-file-word"></i> Document Mission 2</a>
+    </div>
+</div>
+
+<div class="mission-sep"><div class="mission-sep-line"></div><span class="mission-sep-txt">Mission suivante</span><div class="mission-sep-line"></div></div>
+
+<!-- M3 -->
+<div id="m3" class="mission">
+    <div class="mission-sidebar"><span class="mission-num">03</span><span class="mission-tag-side">VLAN · VTP · Trunk</span></div>
+    <div class="mission-body">
+        <div class="mission-header">
+            <div><div class="mission-title">Segmentation VLANs &amp; VTP</div><div class="mission-subtitle">Isolation du trafic et propagation automatique</div></div>
+            <span class="status-badge status-ok">Complété</span>
+        </div>
+        <p class="mission-desc">Création des VLANs par junior entreprise, configuration du domaine VTP et routage inter-VLAN via sous-interfaces (Router-on-a-stick) sur RoutChass.</p>
+        <div class="points">
+            <div class="point">SwitchIntra configuré en VTP Server — propagation automatique vers SwitchEtages et SwitchDMZ.</div>
+            <div class="point">VLANs 10 à 99 pour les junior entreprises (plage 172.17.1xx.0/24).</div>
+            <div class="point">Liaisons trunk 802.1Q entre les switches et vers le routeur.</div>
+            <div class="point">Routage inter-VLAN via sous-interfaces encapsulation dot1Q sur RoutChass.</div>
+        </div>
+        <div class="code-wrap">
+            <div class="code-bar"><div class="code-bar-left"><div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div><span class="code-filename">SwitchIntra — VTP Server + VLANs</span></div><span class="code-lang">IOS</span></div>
+            <pre><span class="c-c">! Configuration VTP Serveur</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">vtp domain</span> <span class="c-v">tierslieux86</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">vtp mode</span> <span class="c-v">server</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">vtp password</span> <span class="c-s">vtp_pass</span>
+
+<span class="c-c">! Création des VLANs junior entreprises</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">vlan</span> <span class="c-v">10</span>
+<span class="c-p">SwitchIntra(config-vlan)#</span> <span class="c-k">name</span> <span class="c-s">JE_Esporting</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">vlan</span> <span class="c-v">20</span>
+<span class="c-p">SwitchIntra(config-vlan)#</span> <span class="c-k">name</span> <span class="c-s">JE_ValorElec</span></pre>
+        </div>
+        <div class="code-wrap">
+            <div class="code-bar"><div class="code-bar-left"><div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div><span class="code-filename">RoutChass — Router-on-a-stick</span></div><span class="code-lang">IOS</span></div>
+            <pre><span class="c-c">! Sous-interface VLAN 10 — JE Esporting</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">interface</span> Fa0/0<span class="c-k">.</span><span class="c-v">10</span>
+<span class="c-p">RoutChass(config-subif)#</span> <span class="c-k">encapsulation dot1Q</span> <span class="c-v">10</span>
+<span class="c-p">RoutChass(config-subif)#</span> <span class="c-k">ip address</span> <span class="c-v">172.17.110.254 255.255.255.0</span>
+
+<span class="c-c">! Sous-interface VLAN 20 — ValorElec</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">interface</span> Fa0/0<span class="c-k">.</span><span class="c-v">20</span>
+<span class="c-p">RoutChass(config-subif)#</span> <span class="c-k">encapsulation dot1Q</span> <span class="c-v">20</span>
+<span class="c-p">RoutChass(config-subif)#</span> <span class="c-k">ip address</span> <span class="c-v">172.17.120.254 255.255.255.0</span>
+
+<span class="c-c">! Vérification</span>
+<span class="c-p">SwitchIntra#</span> <span class="c-k">show vlan brief</span></pre>
+        </div>
+        <div class="photo-row cols-2">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-network-wired"></i><p>CAPTURE — show vlan brief</p><span>VLANs propagés par VTP sur SwitchEtages</span></div><img alt="show vlan brief"></div>
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-route"></i><p>CAPTURE — Ping inter-VLAN</p><span>Test routage entre junior entreprises</span></div><img alt="Ping inter-VLAN"></div>
+        </div>
+        <a href="mission3_vlans_vtp.docx" class="dl-link"><i class="fas fa-file-word"></i> Document Mission 3</a>
+    </div>
+</div>
+
+<div class="mission-sep"><div class="mission-sep-line"></div><span class="mission-sep-txt">Mission suivante</span><div class="mission-sep-line"></div></div>
+
+<!-- M4 -->
+<div id="m4" class="mission">
+    <div class="mission-sidebar"><span class="mission-num">04</span><span class="mission-tag-side">Syslog · Logs</span></div>
+    <div class="mission-body">
+        <div class="mission-header">
+            <div><div class="mission-title">Centralisation Syslog</div><div class="mission-subtitle">Traçabilité des événements réseau</div></div>
+            <span class="status-badge status-ok">Complété</span>
+        </div>
+        <p class="mission-desc">Configuration de la journalisation centralisée sur SrvIntraDHCP. Tous les équipements actifs envoient leurs logs avec horodatage précis à la milliseconde.</p>
+        <div class="points">
+            <div class="point">Activation du logging vers 192.168.2.100 sur RoutChass, SwitchIntra, SwitchEtages et SwitchDMZ.</div>
+            <div class="point">Niveau de sévérité debugging (7) pour capturer tous les événements.</div>
+            <div class="point">Horodatage précis avec millisecondes via <code>service timestamps log datetime msec</code>.</div>
+            <div class="point">Vérification de la réception des logs côté serveur Packet Tracer.</div>
+        </div>
+        <div class="code-wrap">
+            <div class="code-bar"><div class="code-bar-left"><div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div><span class="code-filename">Tous équipements — Syslog</span></div><span class="code-lang">IOS</span></div>
+            <pre><span class="c-c">! Activation Syslog vers le serveur centralisé</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">logging</span> <span class="c-v">192.168.2.100</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">logging trap</span> <span class="c-v">debugging</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">logging on</span>
+
+<span class="c-c">! Horodatage précis des logs</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">service timestamps log datetime</span> <span class="c-v">msec</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">service timestamps debug datetime</span> <span class="c-v">msec</span>
+
+<span class="c-c">! Vérification</span>
+<span class="c-p">RoutChass#</span> <span class="c-k">show logging</span></pre>
+        </div>
+        <div class="photo-row cols-2">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-list-alt"></i><p>CAPTURE — show logging</p><span>Logs envoyés depuis le routeur</span></div><img alt="show logging"></div>
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-server"></i><p>CAPTURE — Syslog côté serveur PT</p><span>Interface Syslog du Server-PT</span></div><img alt="Serveur Syslog"></div>
+        </div>
+        <a href="mission4_syslog.docx" class="dl-link"><i class="fas fa-file-word"></i> Document Mission 4</a>
+    </div>
+</div>
+
+<div class="mission-sep"><div class="mission-sep-line"></div><span class="mission-sep-txt">Mission suivante</span><div class="mission-sep-line"></div></div>
+
+<!-- M5 -->
+<div id="m5" class="mission">
+    <div class="mission-sidebar"><span class="mission-num">05</span><span class="mission-tag-side">SPOF · Audit</span></div>
+    <div class="mission-body">
+        <div class="mission-header">
+            <div><div class="mission-title">Analyse Tolérance aux Pannes</div><div class="mission-subtitle">Identification des SPOF et préconisations</div></div>
+            <span class="status-badge status-ok">Complété</span>
+        </div>
+        <p class="mission-desc">Audit complet de l'infrastructure pour identifier les points de défaillance uniques (SPOF) et proposer une architecture redondante en vue des missions 6, 7 et 8.</p>
+        <div class="points">
+            <div class="point">Identification des SPOF : routeur unique, switch core unique, lien FAI unique.</div>
+            <div class="point">Préconisation HSRP pour la redondance de passerelle — implémenté en Mission 8.</div>
+            <div class="point">Proposition EtherChannel entre switches core pour doubler la bande passante — Mission 6.</div>
+            <div class="point">Ajout de RSTP pour convergence rapide en cas de panne de lien — Mission 7.</div>
+        </div>
+        <div class="photo-row cols-1">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-exclamation-triangle"></i><p>CAPTURE — Schéma SPOF annotés</p><span>Points de défaillance identifiés sur la topologie</span></div><img alt="SPOF schéma"></div>
+        </div>
+        <a href="mission5_tolerance_pannes.docx" class="dl-link"><i class="fas fa-file-word"></i> Document Mission 5</a>
+    </div>
+</div>
+
+<div class="mission-sep"><div class="mission-sep-line"></div><span class="mission-sep-txt">Mission suivante</span><div class="mission-sep-line"></div></div>
+
+<!-- M6 -->
+<div id="m6" class="mission">
+    <div class="mission-sidebar"><span class="mission-num">06</span><span class="mission-tag-side">EtherChannel · PAgP</span></div>
+    <div class="mission-body">
+        <div class="mission-header">
+            <div><div class="mission-title">EtherChannel (PAgP)</div><div class="mission-subtitle">Agrégation de liens pour bande passante et redondance</div></div>
+            <span class="status-badge status-ok">Complété</span>
+        </div>
+        <p class="mission-desc">Agrégation de deux liens physiques entre SwitchIntra et SwitchEtages via PAgP (Cisco propriétaire). La bande passante est doublée et la redondance assurée.</p>
+        <div class="points">
+            <div class="point">Port-Channel 1 sur les ports Fa0/23 et Fa0/24 entre SwitchIntra et SwitchEtages.</div>
+            <div class="point">Mode PAgP <code>desirable</code> côté SwitchIntra, <code>auto</code> côté SwitchEtages.</div>
+            <div class="point">Port-channel configuré en mode trunk pour transporter tous les VLANs.</div>
+            <div class="point">Vérification avec <code>show etherchannel summary</code> — état SU (en service).</div>
+        </div>
+        <div class="code-wrap">
+            <div class="code-bar"><div class="code-bar-left"><div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div><span class="code-filename">SwitchIntra — EtherChannel PAgP</span></div><span class="code-lang">IOS</span></div>
+            <pre><span class="c-c">! Agrégation Fa0/23 et Fa0/24</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">interface range</span> Fa0/23 <span class="c-k">-</span> 24
+<span class="c-p">SwitchIntra(config-if-range)#</span> <span class="c-k">channel-group</span> <span class="c-v">1</span> <span class="c-k">mode</span> <span class="c-v">desirable</span>
+<span class="c-p">SwitchIntra(config-if-range)#</span> <span class="c-k">exit</span>
+
+<span class="c-c">! Port-channel en trunk</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">interface</span> Port-channel<span class="c-v">1</span>
+<span class="c-p">SwitchIntra(config-if)#</span> <span class="c-k">switchport mode</span> <span class="c-v">trunk</span>
+
+<span class="c-c">! Vérification</span>
+<span class="c-p">SwitchIntra#</span> <span class="c-k">show etherchannel summary</span></pre>
+        </div>
+        <div class="photo-row cols-2">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-link"></i><p>CAPTURE — show etherchannel summary</p><span>État SU (layer2, en service)</span></div><img alt="EtherChannel summary"></div>
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-project-diagram"></i><p>CAPTURE — Topologie avec EtherChannel</p><span>Lien agrégé visible dans Packet Tracer</span></div><img alt="Topologie EtherChannel"></div>
+        </div>
+        <a href="mission6_etherchannel.docx" class="dl-link"><i class="fas fa-file-word"></i> Document Mission 6</a>
+    </div>
+</div>
+
+<div class="mission-sep"><div class="mission-sep-line"></div><span class="mission-sep-txt">Mission suivante</span><div class="mission-sep-line"></div></div>
+
+<!-- M7 -->
+<div id="m7" class="mission">
+    <div class="mission-sidebar"><span class="mission-num">07</span><span class="mission-tag-side">RSTP · Rapid-PVST+</span></div>
+    <div class="mission-body">
+        <div class="mission-header">
+            <div><div class="mission-title">Redondance L2 — RSTP</div><div class="mission-subtitle">Spanning Tree rapide et optimisation convergence</div></div>
+            <span class="status-badge status-ok">Complété</span>
+        </div>
+        <p class="mission-desc">Remplacement du STP classique par Rapid-PVST+ pour réduire le temps de convergence de 30-50s à moins de 5s. SwitchIntra est élu Root Bridge pour tous les VLANs.</p>
+        <div class="points">
+            <div class="point">Passage en mode <code>rapid-pvst</code> sur tous les switches.</div>
+            <div class="point">SwitchIntra élu Root Bridge (priorité 4096) pour tous les VLANs.</div>
+            <div class="point">PortFast activé sur les ports d'accès pour éliminer le délai de démarrage.</div>
+            <div class="point">BPDU Guard activé globalement pour sécuriser les ports PortFast.</div>
+        </div>
+        <div class="code-wrap">
+            <div class="code-bar"><div class="code-bar-left"><div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div><span class="code-filename">SwitchIntra — Rapid-PVST+ Root Bridge</span></div><span class="code-lang">IOS</span></div>
+            <pre><span class="c-c">! Activation Rapid-PVST+ sur tous les switches</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">spanning-tree mode</span> <span class="c-v">rapid-pvst</span>
+
+<span class="c-c">! SwitchIntra = Root Bridge pour tous les VLANs</span>
+<span class="c-p">SwitchIntra(config)#</span> <span class="c-k">spanning-tree vlan</span> <span class="c-v">1-99</span> <span class="c-k">root primary</span>
+
+<span class="c-c">! PortFast + BPDU Guard sur ports d'accès</span>
+<span class="c-p">SwitchEtages(config)#</span> <span class="c-k">spanning-tree portfast default</span>
+<span class="c-p">SwitchEtages(config)#</span> <span class="c-k">spanning-tree portfast bpduguard default</span>
+
+<span class="c-c">! Vérification</span>
+<span class="c-p">SwitchIntra#</span> <span class="c-k">show spanning-tree vlan</span> <span class="c-v">10</span></pre>
+        </div>
+        <div class="photo-row cols-2">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-sitemap"></i><p>CAPTURE — show spanning-tree vlan 10</p><span>SwitchIntra = This bridge is the root</span></div><img alt="STP root bridge"></div>
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-bolt"></i><p>CAPTURE — Convergence RSTP</p><span>Temps de convergence après coupure lien</span></div><img alt="Convergence RSTP"></div>
+        </div>
+        <a href="mission7_rstp.docx" class="dl-link"><i class="fas fa-file-word"></i> Document Mission 7</a>
+    </div>
+</div>
+
+<div class="mission-sep"><div class="mission-sep-line"></div><span class="mission-sep-txt">Mission finale</span><div class="mission-sep-line"></div></div>
+
+<!-- M8 -->
+<div id="m8" class="mission">
+    <div class="mission-sidebar"><span class="mission-num">08</span><span class="mission-tag-side">HSRP · L3</span></div>
+    <div class="mission-body">
+        <div class="mission-header">
+            <div><div class="mission-title">Redondance L3 — HSRP</div><div class="mission-subtitle">Haute disponibilité de la passerelle par défaut</div></div>
+            <span class="status-badge status-ok">Complété</span>
+        </div>
+        <p class="mission-desc">Mise en place de HSRP entre RoutChass (actif, priorité 110) et RouterFAI (standby). En cas de panne du routeur actif, le basculement est automatique et transparent pour les utilisateurs.</p>
+        <div class="points">
+            <div class="point">RoutChass = routeur actif (priorité 110) avec <code>preempt</code> pour reprendre le rôle à la restauration.</div>
+            <div class="point">RouterFAI = routeur standby (priorité 100 par défaut).</div>
+            <div class="point">IP virtuelle partagée : 192.168.2.254 — configurée comme passerelle sur tous les postes clients.</div>
+            <div class="point">Test : extinction de RoutChass → RouterFAI prend le relais sans interruption.</div>
+        </div>
+        <div class="code-wrap">
+            <div class="code-bar"><div class="code-bar-left"><div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div><span class="code-filename">RoutChass — HSRP Actif / RouterFAI — Standby</span></div><span class="code-lang">IOS</span></div>
+            <pre><span class="c-c">! RoutChass = routeur HSRP actif (priorité 110)</span>
+<span class="c-p">RoutChass(config)#</span> <span class="c-k">interface</span> Fa0/0
+<span class="c-p">RoutChass(config-if)#</span> <span class="c-k">ip address</span> <span class="c-v">192.168.2.1 255.255.255.0</span>
+<span class="c-p">RoutChass(config-if)#</span> <span class="c-k">standby</span> <span class="c-v">1</span> <span class="c-k">ip</span> <span class="c-v">192.168.2.254</span>
+<span class="c-p">RoutChass(config-if)#</span> <span class="c-k">standby</span> <span class="c-v">1</span> <span class="c-k">priority</span> <span class="c-v">110</span>
+<span class="c-p">RoutChass(config-if)#</span> <span class="c-k">standby</span> <span class="c-v">1</span> <span class="c-k">preempt</span>
+
+<span class="c-c">! RouterFAI = routeur HSRP standby (priorité 100)</span>
+<span class="c-p">RouterFAI(config)#</span> <span class="c-k">interface</span> Fa0/0
+<span class="c-p">RouterFAI(config-if)#</span> <span class="c-k">ip address</span> <span class="c-v">192.168.2.2 255.255.255.0</span>
+<span class="c-p">RouterFAI(config-if)#</span> <span class="c-k">standby</span> <span class="c-v">1</span> <span class="c-k">ip</span> <span class="c-v">192.168.2.254</span>
+
+<span class="c-c">! Vérification état HSRP</span>
+<span class="c-p">RoutChass#</span> <span class="c-k">show standby brief</span></pre>
+        </div>
+        <div class="photo-row cols-2">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-shield-alt"></i><p>CAPTURE — show standby brief</p><span>RoutChass Active / RouterFAI Standby</span></div><img alt="HSRP standby brief"></div>
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-exchange-alt"></i><p>CAPTURE — Basculement HSRP</p><span>RouterFAI passe Active après coupure</span></div><img alt="Basculement HSRP"></div>
+        </div>
+        <div class="photo-row cols-1">
+            <div class="photo-zone" onclick="this.querySelector('input').click()"><input type="file" accept="image/*" onchange="loadPhoto(this)"><div class="photo-ph"><i class="fas fa-project-diagram"></i><p>CAPTURE — Topologie finale complète</p><span>Vue globale de l'infrastructure après les 8 missions</span></div><img alt="Topologie finale"></div>
+        </div>
+        <a href="mission8_hsrp.docx" class="dl-link"><i class="fas fa-file-word"></i> Document Mission 8</a>
+    </div>
+</div>
+
+<div class="cta-final">
+    <div>
+        <div class="cta-tag">Livrable E6</div>
+        <div class="cta-title">Compte Rendu Final</div>
+        <div class="cta-sub">Intégralité des configurations, tests et analyses — 8 missions</div>
+    </div>
+    <a href="compte_rendu_evolinfra.docx" class="dl-link" style="font-size:12px;padding:12px 24px"><i class="fas fa-file-word"></i> Ouvrir le rapport complet</a>
+</div>
+
+</main>
+
+<footer>
+    <span class="footer-txt">Miguel Etienne &nbsp;·&nbsp; EvolInfra E6 &nbsp;·&nbsp; BTS SIO SISR &nbsp;·&nbsp; 2026</span>
+    <span class="footer-logo">Miguel<span>.SIO</span></span>
+</footer>
+
+<script>
+function loadPhoto(input){
+    if(!input.files||!input.files[0])return;
+    const reader=new FileReader();
+    reader.onload=function(e){
+        const zone=input.closest('.photo-zone');
+        const ph=zone.querySelector('.photo-ph');
+        const img=zone.querySelector('img');
+        img.src=e.target.result;
+        img.style.display='block';
+        ph.style.display='none';
+        zone.style.padding='8px';
+        zone.style.border='1px solid #1a6641';
+        zone.style.background='#f0faf5';
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
+</body>
+</html>
