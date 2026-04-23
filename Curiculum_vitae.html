@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV — Miguel Etienne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --ink:#0f0d0a;--ink2:#3d3830;--cream:#faf8f3;--paper:#f3efe6;
+  --warm:#ede8dc;--gold:#c9921a;--gold2:#e8ad30;--sky:#1d4ed8;
+  --muted:#8a8070;--border:#e0d9ce;--card:#ffffff;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+
+/* ── BARRE DU HAUT ── */
+.topbar{background:var(--ink);height:52px;display:flex;align-items:center;padding:0 2.5rem;justify-content:space-between;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100}
+.tb-logo{font-family:var(--serif);font-weight:700;font-size:17px;color:white;text-decoration:none}
+.tb-logo em{font-style:italic;color:var(--gold2)}
+.tb-nav{display:flex;align-items:center;gap:2rem}
+.tb-nav a{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#7a7060;text-decoration:none;transition:color .2s}
+.tb-nav a:hover{color:#ccc}
+.tb-dl{display:inline-flex;align-items:center;gap:7px;background:var(--gold);color:white;font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:7px 16px;border-radius:3px;text-decoration:none;transition:background .2s;cursor:pointer;border:none}
+.tb-dl:hover{background:var(--gold2)}
+
+/* ── PAGE ── */
+.page{max-width:900px;margin:0 auto;padding:2.5rem 2rem 6rem}
+
+/* ── HEADER ── */
+.cv-header{display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:end;background:var(--ink);border-radius:8px;padding:2.5rem 2.5rem 2rem;margin-bottom:2rem;position:relative;overflow:hidden}
+.cv-header::after{content:'ME';position:absolute;right:-20px;bottom:-20px;font-family:var(--serif);font-weight:700;font-size:10rem;color:rgba(255,255,255,0.025);line-height:1;pointer-events:none}
+.cv-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold))}
+
+.cv-name{font-family:var(--serif);font-weight:700;font-size:clamp(2.2rem,5vw,3.5rem);color:white;line-height:1;letter-spacing:-.02em;margin-bottom:6px}
+.cv-name em{font-style:italic;color:var(--gold2)}
+.cv-title{font-family:var(--mono);font-size:10px;color:var(--gold2);letter-spacing:.22em;text-transform:uppercase;margin-bottom:1.25rem}
+.cv-contacts{display:flex;flex-wrap:wrap;gap:10px}
+.cv-contact{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;color:#7a7060;letter-spacing:.08em}
+.cv-contact i{color:var(--gold2);font-size:10px}
+.cv-contact a{color:#7a7060;text-decoration:none}
+.cv-contact a:hover{color:white}
+
+/* PHOTO dans le header */
+.cv-photo-wrap{position:relative;z-index:2;flex-shrink:0}
+.cv-photo-zone{width:110px;height:110px;border-radius:50%;border:3px solid var(--gold);overflow:hidden;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.cv-photo-zone:hover .cv-photo-overlay{opacity:1}
+.cv-photo-initials{font-family:var(--serif);font-weight:700;font-size:2.8rem;color:var(--gold2)}
+.cv-photo-img{width:100%;height:100%;object-fit:cover;display:none}
+.cv-photo-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;border-radius:50%}
+.cv-photo-overlay i{color:var(--gold2);font-size:16px}
+.cv-photo-lbl{display:block;margin-top:8px;font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);text-align:center;cursor:pointer;border-bottom:1px dashed rgba(201,146,26,.35)}
+.cv-photo-lbl:hover{color:white}
+
+/* ── LAYOUT DEUX COLONNES ── */
+.cv-body{display:grid;grid-template-columns:260px 1fr;gap:1.5rem;align-items:start}
+
+/* ── COLONNE GAUCHE ── */
+
+/* Bloc sidebar */
+.sb{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:1rem}
+.sb-head{background:var(--ink);padding:9px 14px;display:flex;align-items:center;gap:8px}
+.sb-head i{color:var(--gold2);font-size:11px;width:14px}
+.sb-head span{font-family:var(--mono);font-size:9px;color:white;letter-spacing:.2em;text-transform:uppercase}
+.sb-body{padding:1rem 1.1rem}
+
+/* Compétences */
+.skill-group{margin-bottom:.9rem}
+.skill-group:last-child{margin-bottom:0}
+.skill-cat{font-family:var(--mono);font-size:8.5px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+.skill-tags{display:flex;flex-wrap:wrap;gap:4px}
+.stag{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;padding:3px 9px;border-radius:3px;background:var(--paper);border:1px solid var(--border);color:var(--ink2)}
+.stag.hl{background:var(--ink);color:var(--gold2);border-color:var(--ink)}
+.stag.hl2{background:rgba(29,78,216,.08);color:var(--sky);border-color:rgba(29,78,216,.2)}
+
+/* Langues */
+.lang-item{margin-bottom:10px}
+.lang-item:last-child{margin-bottom:0}
+.lang-top{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px}
+.lang-name{color:var(--ink2);font-weight:500}
+.lang-lvl{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.lang-bar{height:3px;background:var(--paper);border-radius:2px;overflow:hidden}
+.lang-fill{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+
+/* Infos */
+.info-line{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--paper);font-size:12px}
+.info-line:last-child{border-bottom:none}
+.info-line i{color:var(--gold);font-size:10px;margin-top:2px;width:12px;flex-shrink:0}
+.info-line span{color:var(--ink2);line-height:1.5}
+
+/* Certifs / plateformes */
+.cert-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--paper);font-size:11.5px}
+.cert-item:last-child{border-bottom:none}
+.cert-item i{color:var(--gold);font-size:10px;margin-top:2px;flex-shrink:0}
+.cert-name{font-weight:500;color:var(--ink);display:block}
+.cert-sub{font-size:10.5px;color:var(--muted)}
+
+/* ── COLONNE DROITE ── */
+
+/* Section */
+.cv-section{margin-bottom:1.5rem}
+.cv-section-title{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.cv-section-title i{color:var(--gold);font-size:12px;width:16px}
+.cv-section-title span{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.22em;text-transform:uppercase}
+.cv-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Profil */
+.profil-text{font-size:13.5px;color:var(--ink2);line-height:1.8;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:4px;padding:1rem 1.25rem}
+.profil-text strong{color:var(--ink);font-weight:600}
+
+/* Expérience */
+.exp-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem 1.25rem;margin-bottom:.75rem;position:relative}
+.exp-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.exp-card.it::before{background:var(--sky)}
+.exp-card.extra::before{background:var(--gold)}
+.exp-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:4px}
+.exp-title{font-family:var(--serif);font-weight:700;font-size:1rem;color:var(--ink);letter-spacing:-.01em}
+.exp-badge{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;flex-shrink:0;margin-top:2px}
+.eb-it{background:rgba(29,78,216,.08);color:var(--sky);border:1px solid rgba(29,78,216,.2)}
+.eb-extra{background:rgba(201,146,26,.1);color:var(--gold);border:1px solid rgba(201,146,26,.2)}
+.exp-company{font-size:12.5px;color:var(--gold);font-weight:500;margin-bottom:2px}
+.exp-date{font-family:var(--mono);font-size:9.5px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-bottom:.6rem}
+.exp-date i{font-size:9px}
+.exp-bullets{list-style:none;display:flex;flex-direction:column;gap:3px}
+.exp-bullets li{font-size:12.5px;color:var(--ink2);padding-left:14px;position:relative;line-height:1.6}
+.exp-bullets li::before{content:'·';position:absolute;left:3px;color:var(--gold);font-size:14px;line-height:1.3}
+.exp-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:.6rem}
+.etag{font-family:var(--mono);font-size:8px;letter-spacing:.06em;padding:2px 8px;border-radius:3px;background:var(--paper);border:1px solid var(--border);color:var(--muted)}
+
+/* Formation */
+.edu-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem 1.25rem;margin-bottom:.75rem;display:grid;grid-template-columns:auto 1fr;gap:.75rem;align-items:start}
+.edu-icon{width:36px;height:36px;border-radius:6px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.edu-icon i{color:var(--gold2);font-size:14px}
+.edu-title{font-family:var(--serif);font-weight:700;font-size:.95rem;color:var(--ink);margin-bottom:2px;letter-spacing:-.01em}
+.edu-school{font-size:12px;color:var(--gold);font-weight:500;margin-bottom:2px}
+.edu-date{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.edu-desc{font-size:11.5px;color:var(--ink2);margin-top:4px;line-height:1.6}
+
+/* ── PRINT ── */
+@media print{
+  .topbar{display:none!important}
+  .page{padding:0;max-width:100%}
+  .cv-body{grid-template-columns:230px 1fr}
+  body{background:white}
+}
+
+@media(max-width:700px){
+  .cv-body{grid-template-columns:1fr}
+  .cv-header{grid-template-columns:1fr}
+  .cv-photo-wrap{display:none}
+  .tb-nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="tb-logo">Miguel <em>Etienne</em></a>
+  <nav class="tb-nav">
+    <a href="index.html">Accueil</a>
+    <a href="projets.html">Projets</a>
+    <a href="parcours.html">Parcours</a>
+    <a href="apropos.html">À propos</a>
+  </nav>
+  <button class="tb-dl" onclick="window.print()"><i class="fas fa-download"></i> Télécharger PDF</button>
+</div>
+
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <div class="cv-header">
+    <div>
+      <div class="cv-title">Curriculum Vitæ · BTS SIO SISR 2026</div>
+      <div class="cv-name">Miguel<br><em>Etienne</em></div>
+      <div style="margin-top:.75rem">
+        <div style="font-family:var(--mono);font-size:9.5px;color:var(--gold2);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.5rem">Etudiant en Informatique</div>
+      </div>
+      <div class="cv-contacts">
+        <div class="cv-contact"><i class="fas fa-map-marker-alt"></i><span>Châlette-sur-Loing (45)</span></div>
+        <div class="cv-contact"><i class="fas fa-envelope"></i><a href="mailto:etienneawos12@gmail.com">etienneawos12@gmail.com</a></div>
+        <div class="cv-contact"><i class="fas fa-phone"></i><a href="tel:+33763530900">+33 7 63 53 09 00</a></div>
+      </div>
+    </div>
+
+    <!-- PHOTO -->
+    <div class="cv-photo-wrap">
+      <div class="cv-photo-zone" onclick="document.getElementById('cvPhotoInput').click()">
+        <span class="cv-photo-initials" id="cvInitials">ME</span>
+        <img class="cv-photo-img" id="cvPhotoImg" alt="Miguel Etienne">
+        <div class="cv-photo-overlay"><i class="fas fa-camera"></i></div>
+      </div>
+      <input type="file" id="cvPhotoInput" accept="image/*" onchange="handleCvPhoto(this)" style="display:none">
+      <label for="cvPhotoInput" class="cv-photo-lbl"><i class="fas fa-camera"></i> Ajouter photo</label>
+    </div>
+  </div>
+
+  <!-- ── DEUX COLONNES ── -->
+  <div class="cv-body">
+
+    <!-- GAUCHE -->
+    <div class="col-left">
+
+      <!-- INFOS -->
+      <div class="sb">
+        <div class="sb-head"><i class="fas fa-user"></i><span>Informations</span></div>
+        <div class="sb-body">
+          <div class="info-line"><i class="fas fa-graduation-cap"></i><span><strong>BTS SIO SISR</strong><br>CNED · 2e année</span></div>
+          <div class="info-line"><i class="fas fa-map-marker-alt"></i><span>Châlette-sur-Loing (45)</span></div>
+          <div class="info-line"><i class="fas fa-calendar"></i><span>Disponible — Alternance L3 Cybersécurité</span></div>
+          <div class="info-line"><i class="fas fa-car"></i><span>Permis B (en cours)</span></div>
+        </div>
+      </div>
+
+      <!-- COMPÉTENCES -->
+      <div class="sb">
+        <div class="sb-head"><i class="fas fa-code"></i><span>Compétences techniques</span></div>
+        <div class="sb-body">
+          <div class="skill-group">
+            <div class="skill-cat">Cloud & IaC</div>
+            <div class="skill-tags">
+              <span class="stag hl">Microsoft Azure</span>
+              <span class="stag hl">Terraform</span>
+              <span class="stag hl2">Azure CLI</span>
+              <span class="stag hl2">ARM Templates</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="skill-cat">Réseaux</div>
+            <div class="skill-tags">
+              <span class="stag hl">Cisco IOS</span>
+              <span class="stag">VLANs · VTP</span>
+              <span class="stag">HSRP · STP</span>
+              <span class="stag">DHCP · DNS</span>
+              <span class="stag">Packet Tracer</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="skill-cat">Systèmes</div>
+            <div class="skill-tags">
+              <span class="stag hl">Active Directory</span>
+              <span class="stag">Windows Server 2022</span>
+              <span class="stag">Linux · Bash</span>
+              <span class="stag">PowerShell</span>
+              <span class="stag">VyOS</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="skill-cat">Cybersécurité</div>
+            <div class="skill-tags">
+              <span class="stag hl">SOC · SIEM</span>
+              <span class="stag">Splunk</span>
+              <span class="stag">RBAC · Entra ID</span>
+              <span class="stag">NSG · Pare-feu</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="skill-cat">Services IT</div>
+            <div class="skill-tags">
+              <span class="stag">GLPI</span>
+              <span class="stag">HaProxy</span>
+              <span class="stag">Apache · SSL</span>
+              <span class="stag">MariaDB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LANGUES -->
+      <div class="sb">
+        <div class="sb-head"><i class="fas fa-language"></i><span>Langues</span></div>
+        <div class="sb-body">
+          <div class="lang-item">
+            <div class="lang-top"><span class="lang-name">Français</span><span class="lang-lvl">Natif</span></div>
+            <div class="lang-bar"><div class="lang-fill" style="width:100%"></div></div>
+          </div>
+          <div class="lang-item">
+            <div class="lang-top"><span class="lang-name">Espagnol</span><span class="lang-lvl">Courant</span></div>
+            <div class="lang-bar"><div class="lang-fill" style="width:95%"></div></div>
+          </div>
+          <div class="lang-item">
+            <div class="lang-top"><span class="lang-name">Anglais</span><span class="lang-lvl">B2</span></div>
+            <div class="lang-bar"><div class="lang-fill" style="width:75%"></div></div>
+          </div>
+          <div class="lang-item">
+            <div class="lang-top"><span class="lang-name">Italien</span><span class="lang-lvl">B2</span></div>
+            <div class="lang-bar"><div class="lang-fill" style="width:70%;background:var(--sky)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLATEFORMES CYBER -->
+      <div class="sb">
+        <div class="sb-head"><i class="fas fa-shield-alt"></i><span>Cybersécurité</span></div>
+        <div class="sb-body">
+          <div class="cert-item"><i class="fas fa-flag"></i><div><span class="cert-name">TryHackMe</span><span class="cert-sub">SOC Level 1 — en cours</span></div></div>
+          <div class="cert-item"><i class="fas fa-terminal"></i><div><span class="cert-name">Hack The Box</span><span class="cert-sub">Pentesting & challenges</span></div></div>
+          <div class="cert-item"><i class="fas fa-lock"></i><div><span class="cert-name">Root-Me</span><span class="cert-sub">Challenges sécurité</span></div></div>
+        </div>
+      </div>
+
+      <!-- CENTRES D'INTÉRÊT -->
+      <div class="sb">
+        <div class="sb-head"><i class="fas fa-star"></i><span>Intérêts</span></div>
+        <div class="sb-body">
+          <div class="cert-item"><i class="fas fa-shield-alt"></i><div><span class="cert-name">Cybersécurité</span><span class="cert-sub">Veille & auto-formation</span></div></div>
+          <div class="cert-item"><i class="fas fa-cloud"></i><div><span class="cert-name">Cloud Azure</span><span class="cert-sub">Architecture & IaC</span></div></div>
+          <div class="cert-item"><i class="fas fa-plane"></i><div><span class="cert-name">Voyages & langues</span><span class="cert-sub">Italie ✓ · Malte (à venir)</span></div></div>
+          <div class="cert-item"><i class="fas fa-futbol"></i><div><span class="cert-name">Football · Cinéma</span><span class="cert-sub">Cultures du monde</span></div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DROITE -->
+    <div class="col-right">
+
+      <!-- PROFIL -->
+      <div class="cv-section">
+        <div class="cv-section-title"><i class="fas fa-user-circle"></i><span>Profil</span></div>
+        <div class="profil-text">
+          Étudiant en <strong>BTS SIO option SISR</strong> au CNED, je me spécialise en infrastructure réseau, administration système et cloud Microsoft Azure. Lors de mon stage chez <strong>Paradigm (Versailles)</strong>, j'ai déployé une infrastructure cloud Windows sur Azure via <strong>Terraform</strong> (IaC). Mon objectif est d'intégrer une formation d'<strong>Ingénieur Cybersécurité</strong> à l'issue de mon BTS. <strong>Quadrilingue</strong> (français, espagnol, anglais, italien), rigoureux et autonome grâce à 2 ans de formation à distance.
+        </div>
+      </div>
+
+      <!-- EXPÉRIENCES -->
+      <div class="cv-section">
+        <div class="cv-section-title"><i class="fas fa-briefcase"></i><span>Expériences professionnelles</span></div>
+
+        <!-- STAGE PARADIGM -->
+        <div class="exp-card it">
+          <div class="exp-header">
+            <div class="exp-title">Technicien Infrastructure Cloud</div>
+            <span class="exp-badge eb-it">Stage IT</span>
+          </div>
+          <div class="exp-company"><i class="fas fa-building" style="font-size:10px;margin-right:5px"></i>Paradigm · Versailles (78)</div>
+          <div class="exp-date"><i class="fas fa-calendar-alt"></i>Janvier — Mars 2026 · Superviseur : Yasser Salimi</div>
+          <ul class="exp-bullets">
+            <li>Déploiement d'une infrastructure Windows multi-VM sur Microsoft Azure via <strong>Terraform</strong> (IaC) : 2 VMs Windows Server 2022, 1 VM Windows 11, VNet, NSG avec règles RDP/SSH</li>
+            <li>Configuration du réseau virtuel Azure : VNet 10.0.0.0/16, subnet, IP publiques statiques, Network Security Group</li>
+            <li>Utilisation d'Azure CLI, ARM Templates et du provider AzureRM pour la gestion des ressources cloud</li>
+            <li>Versionnage de l'infrastructure sur Git — résolution de problèmes réels (MFA, state lock, password policy)</li>
+          </ul>
+          <div class="exp-tags">
+            <span class="etag">Microsoft Azure</span><span class="etag">Terraform HCL</span><span class="etag">Windows Server 2022</span><span class="etag">VNet · NSG</span><span class="etag">Azure CLI</span><span class="etag">Git</span>
+          </div>
+        </div>
+
+        <!-- HOST BREAKFAST ECLA -->
+        <div class="exp-card extra">
+          <div class="exp-header">
+            <div class="exp-title">Host Breakfast</div>
+            <span class="exp-badge eb-extra">CDD</span>
+          </div>
+          <div class="exp-company"><i class="fas fa-concierge-bell" style="font-size:10px;margin-right:5px"></i>Ecla · Noisy-le-Grand (93)</div>
+          <div class="exp-date"><i class="fas fa-calendar-alt"></i>Mars 2026 — Juin 2026</div>
+          <ul class="exp-bullets">
+            <li>Accueil et service du petit-déjeuner en établissement hôtelier</li>
+            <li>Gestion de l'espace restauration et satisfaction client</li>
+          </ul>
+        </div>
+
+        <!-- ROOM SERVICE -->
+        <div class="exp-card extra">
+          <div class="exp-header">
+            <div class="exp-title">Commis de Room Service</div>
+            <span class="exp-badge eb-extra">Extra</span>
+          </div>
+          <div class="exp-company"><i class="fas fa-concierge-bell" style="font-size:10px;margin-right:5px"></i>Établissement hôtelier · Paris</div>
+          <div class="exp-date"><i class="fas fa-calendar-alt"></i> Décembre 2025 — Février2026</div>
+          <ul class="exp-bullets">
+            <li>Service en chambre — livraison et dressage des commandes en respectant les standards hôteliers</li>
+            <li>Gestion des demandes clients avec réactivité et discrétion</li>
+          </ul>
+        </div>
+
+        <!-- FOUQUET'S -->
+        <div class="exp-card extra">
+          <div class="exp-header">
+            <div class="exp-title">Équipier Polyvalent</div>
+            <span class="exp-badge eb-extra">Extra</span>
+          </div>
+          <div class="exp-company"><i class="fas fa-star" style="font-size:10px;margin-right:5px"></i>Fouquet's · Paris (75008)</div>
+          <div class="exp-date"><i class="fas fa-calendar-alt"></i>Juillet 2024 — Février 2026</div>
+          <ul class="exp-bullets">
+            <li>Renfort en salle et événementiel dans un établissement de prestige sur les Champs-Élysées</li>
+            <li>Service lors d'événements de grande envergure — rigueur et adaptabilité en environnement exigeant</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- FORMATION -->
+      <div class="cv-section">
+        <div class="cv-section-title"><i class="fas fa-graduation-cap"></i><span>Formation</span></div>
+
+        <div class="edu-card">
+          <div class="edu-icon"><i class="fas fa-network-wired"></i></div>
+          <div>
+            <div class="edu-title">BTS SIO — Option SISR</div>
+            <div class="edu-school">CNED · Formation à distance</div>
+            <div class="edu-date">2024 — 2026</div>
+            <div class="edu-desc">Systèmes et Réseaux — Réseaux Cisco, Windows Server, Linux, cloud Azure, cybersécurité, virtualisation. Ateliers : Projet Intrasite, PARCINFO (GLPI, HaProxy), Infrastructure Azure IaC.</div>
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-icon"><i class="fas fa-school"></i></div>
+          <div>
+            <div class="edu-title">EHC (Ethical Hacking Certificate)</div>
+            <div class="edu-school">En ligne</div>
+            <div class="edu-date">2026</div>
+            <div class="edu-desc">Certificat en hacking éthique — Formation complète sur les techniques de cybersécurité.</div>
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-icon"><i class="fas fa-university"></i></div>
+          <div>
+            <div class="edu-title">Baccalauréat STMG</div>
+            <div class="edu-school">Spécialité Gestion & Finance</div>
+            <div class="edu-date">Obtenu</div>
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-icon"><i class="fas fa-plane"></i></div>
+          <div>
+            <div class="edu-title">Séjour linguistique — Italie</div>
+            <div class="edu-school">Immersion linguistique · 1 mois</div>
+            <div class="edu-date">Réalisé · Niveau B2 italien</div>
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-icon"><i class="fas fa-plane-departure"></i></div>
+          <div>
+            <div class="edu-title">Séjour linguistique — Malte</div>
+            <div class="edu-school">Immersion linguistique anglais · À venir</div>
+            <div class="edu-date">Prévu 2026 · Consolidation niveau B2</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── IndexedDB — Photo de profil ──────────────────────────────────
+const DB='cv_photo',VR=1,ST='photo';
+let db=null;
+function openDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(DB,VR);
+    r.onupgradeneeded=e=>e.target.result.createObjectStore(ST);
+    r.onsuccess=e=>{db=e.target.result;res()};
+    r.onerror=e=>rej(e);
+  });
+}
+function applyPhoto(src){
+  const img=document.getElementById('cvPhotoImg');
+  const ini=document.getElementById('cvInitials');
+  const lbl=document.querySelector('.cv-photo-lbl');
+  img.src=src; img.style.display='block';
+  ini.style.display='none';
+  if(lbl) lbl.innerHTML='<i class="fas fa-sync-alt"></i> Changer';
+}
+function handleCvPhoto(input){
+  if(!input.files||!input.files[0])return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const src=e.target.result;
+    const tx=db.transaction(ST,'readwrite');
+    tx.objectStore(ST).put(src,'profile');
+    applyPhoto(src);
+    input.value='';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+async function init(){
+  try{
+    await openDB();
+    const tx=db.transaction(ST,'readonly');
+    const req=tx.objectStore(ST).get('profile');
+    req.onsuccess=e=>{if(e.target.result)applyPhoto(e.target.result)};
+  }catch(e){console.warn('IDB:',e)}
+}
+init();
+</script>
+</body>
+</html>
