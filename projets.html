@@ -153,7 +153,7 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:var(--m);font-size:9px;
       <li><a href="apropos.html">À propos</a></li>
       <li><a href="projets.html" class="active">Projets</a></li>
       <li><a href="parcours.html">Parcours</a></li>
-      <li><a href="Curiculum_vitae.html">CV</a></li>
+      <li><a href="cv.html">CV</a></li>
     </ul>
   </nav>
 </header>
@@ -165,7 +165,7 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:var(--m);font-size:9px;
       <h1>Projets<br><em>Techniques</em></h1>
       <p class="hero-desc">Ateliers de professionnalisation, projets d'infrastructure réseau et déploiements cloud réalisés en formation et lors du stage chez Paradigm.</p>
     </div>
-    <div class="hero-count">04</div>
+    <div class="hero-count">06</div>
   </div>
 </section>
 
@@ -175,6 +175,7 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:var(--m);font-size:9px;
   <button class="fb" onclick="filter('cloud',this)">Cloud</button>
   <button class="fb" onclick="filter('securite',this)">Sécurité</button>
   <button class="fb" onclick="filter('systeme',this)">Systèmes</button>
+  <button class="fb" onclick="filter('perso',this)">Projets perso</button>
 </div>
 
 <div class="grid">
@@ -240,7 +241,7 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:var(--m);font-size:9px;
   </a>
 
   <!-- ③ PARCINFO — carte verte -->
-  <a href="GLPI.html" class="card card-std cg span6" data-cat="systeme securite">
+  <a href="atelier4.html" class="card card-std cg span6" data-cat="systeme securite">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
       <div class="c-icon ig"><i class="fas fa-server"></i></div>
       <div>
@@ -261,7 +262,7 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:var(--m);font-size:9px;
   </a>
 
   <!-- ④ AZURE CYRENE — carte orange -->
-  <a href="azure.html" class="card card-std co span6" data-cat="cloud securite">
+  <a href="cyrene.html" class="card card-std co span6" data-cat="cloud securite">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
       <div class="c-icon io"><i class="fas fa-cloud"></i></div>
       <div>
@@ -277,6 +278,50 @@ footer{text-align:center;padding:2.5rem 1rem;font-family:var(--m);font-size:9px;
     </div>
     <div class="c-footer">
       <span class="c-link lo">Voir le projet <i class="fas fa-arrow-right"></i></span>
+      <span class="badge done">Complété</span>
+    </div>
+  </a>
+
+
+
+  <!-- ⑤ DHCP STARVATION -->
+  <a href="DHCP.html" class="card card-std cv2 span6" data-cat="reseau securite perso">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
+      <div class="c-icon iv"><i class="fas fa-skull-crossbones"></i></div>
+      <div>
+        <div class="c-kicker kv">Projet personnel · Cybersécurité offensive & défensive</div>
+        <div class="c-title">DHCP Starvation & Rogue DHCP</div>
+      </div>
+    </div>
+    <p class="c-desc">Démonstration en lab isolé (VirtualBox) d'une attaque DHCP en deux phases : saturation du pool légitime avec Yersinia, puis déploiement d'un faux serveur DHCP pour intercepter le trafic des victimes. Étude des contre-mesures Cisco (DHCP Snooping, DAI).</p>
+    <div class="c-tags">
+      <span class="tag">DHCP Starvation</span><span class="tag">Rogue DHCP</span>
+      <span class="tag">MITM</span><span class="tag">Kali Linux</span>
+      <span class="tag">Yersinia</span><span class="tag">DHCP Snooping</span>
+    </div>
+    <div class="c-footer">
+      <span class="c-link lv">Voir le projet <i class="fas fa-arrow-right"></i></span>
+      <span class="badge done">Complété</span>
+    </div>
+  </a>
+
+  <!-- ⑥ LAB SOC SPLUNK -->
+  <a href="SOC_Splunk.html" class="card card-std cg span6" data-cat="securite perso">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
+      <div class="c-icon ig"><i class="fas fa-shield-alt"></i></div>
+      <div>
+        <div class="c-kicker kg">Projet personnel · SOC · Détection d'intrusion</div>
+        <div class="c-title">Lab SOC Splunk</div>
+      </div>
+    </div>
+    <p class="c-desc">Déploiement d'un SOC en lab virtuel : simulation d'attaques réelles (brute force Hydra, scan Nmap, mouvement latéral) depuis Kali Linux, collecte des Windows Event Logs via Universal Forwarder, détection avec requêtes SPL et dashboards d'alertes Splunk.</p>
+    <div class="c-tags">
+      <span class="tag">Splunk · SIEM</span><span class="tag">Windows Event Logs</span>
+      <span class="tag">Hydra · Nmap</span><span class="tag">SOC Analyst</span>
+      <span class="tag">SPL Queries</span><span class="tag">Threat Detection</span>
+    </div>
+    <div class="c-footer">
+      <span class="c-link lg">Voir le projet <i class="fas fa-arrow-right"></i></span>
       <span class="badge done">Complété</span>
     </div>
   </a>
